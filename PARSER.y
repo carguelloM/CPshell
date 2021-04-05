@@ -8,6 +8,8 @@
 int yylex(void);
 int yyerror(char *s);
 int runCD(char* arg);
+int runCDHome(void);
+int findLastSlash(char *arg);
 int runSetAlias(char *name, char *word);
 int setEnv(char* variable, char* word);
 int printEnv(void);
@@ -29,6 +31,7 @@ cmd_line    :
     | UNSETENV STRING END           {unsetEnv($2); return 1;}
     | UNALIAS STRING END            {unsetAlias($2); return 1;}
 	| CD STRING END        			{runCD($2); return 1;}
+	| CD END						{ runCDHome(); return 1;}
 	| ALIAS STRING STRING END		{runSetAlias($2, $3); return 1;}
     | ALIAS END                     { listAlias(); return 1;}
 
@@ -81,8 +84,54 @@ int unsetEnv(char*  variable)
 
     return 1;
 }
+
+int findLastSlash(char* arg) {
+	if (sizeof(arg) == 0) {
+		return -1;
+	}
+	int argLen = (int) strlen(arg);
+	int slashPos = -1;
+	for (int i = 0; i < argLen; i++) {
+		if (arg[i] == '/') {
+			slashPos = i;
+		}
+	}
+	return slashPos;
+}
+
+int runCDHome(void) {
+	strcpy(varTable.word[0], varTable.word[1]); //set PWD to HOME
+	if(chdir(varTable.word[0]) == 0) {
+		return 1;
+	}
+	else {
+		getcwd(cwd, sizeof(cwd));
+		strcpy(varTable.word[0], cwd);
+		return 0; //error
+	}
+}
+
 int runCD(char* arg) {
-	if (arg[0] != '/') { // arg is relative path
+	if (strcmp(arg, "..") == 0) { // special case - cd ..
+		int slashPos = findLastSlash(varTable.word[0]);
+		if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+			return 1;
+		}
+		else {
+			char *start = &varTable.word[0][0];
+  			char *end = &varTable.word[0][slashPos];
+			char *substr = (char *)calloc(1, end - start + 1);
+  			memcpy(substr, start, end - start);
+			strcpy(varTable.word[0], substr);
+			if (chdir(varTable.word[0]) == 0) {
+				return 1;
+			}
+			else {
+				return 0; // error
+			}
+		}
+	}
+	else if (arg[0] != '/') { // arg is relative path
 		strcat(varTable.word[0], "/");
 		strcat(varTable.word[0], arg);
 
