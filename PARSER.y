@@ -157,17 +157,53 @@ int runCD(char* arg) {
 	}
 }
 
+bool checkLoops(char* word, char* name) {
+	char currword[100];
+	strcpy(currword, word);
+	int position = 0;
+	bool brokenChain = false;
 
+	while(true) {
+		position = 0;
+		if (brokenChain) {
+			return false;
+		}
+		while(true) {
+			if (position >= aliasIndex) {
+				brokenChain = true;
+				break;			
+			}
+			else if (strcmp(aliasTable.word[position], "") == 0) {
+				brokenChain = true;
+				break;
+			}
+
+			if (strcmp(aliasTable.name[position], currword) == 0) {
+				strcpy(currword, aliasTable.word[position]);
+				if (strcmp(currword, name) == 0) {
+					return true;
+				}
+				break;	
+			}
+			position++;
+		}
+	}
+}
 
 int runSetAlias(char *name, char *word) {
 	if(strcmp(name, word) == 0){
 			printf("Error, expansion of \"%s\" would create a loop.\n", name);
 			return 1;
 		}
+
+	if (checkLoops(word, name)) {
+		printf("Error, expansion of \"%s\" would create a loop.\n", name);
+		return 1;
+	}
 	
 	for (int i = 0; i < aliasIndex; i++) {
 		
-		else if((strcmp(aliasTable.name[i], name) == 0) && (strcmp(aliasTable.word[i], word) == 0)){
+		if((strcmp(aliasTable.name[i], name) == 0) && (strcmp(aliasTable.word[i], word) == 0)){
 			printf("Error, expansion of \"%s\" would create a loop.\n", name);
 			return 1;
 		}

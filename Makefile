@@ -11,7 +11,7 @@ flex-config:
 	flex LEXER.l
 
 nutshell: 
-	gcc main.c PARSER.tab.c lex.yy.c -o nutshell.o
+	gcc main.c PARSER.tab.c lex.yy.c -o nutshell.o -lfl
 
 clean:
 	rm PARSER.tab.c PARSER.tab.h lex.yy.c
