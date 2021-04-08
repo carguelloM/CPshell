@@ -85,8 +85,9 @@ int printEnv(void);
 int unsetEnv(char* variable);
 int listAlias(void);
 int unsetAlias(char* name);
+int runNonBuiltIn(char* commandName);
 
-#line 90 "PARSER.tab.c"
+#line 91 "PARSER.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -150,10 +151,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 21 "PARSER.y"
+#line 22 "PARSER.y"
 char *string;
 
-#line 157 "PARSER.tab.c"
+#line 158 "PARSER.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -470,18 +471,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  18
+#define YYFINAL  20
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   25
+#define YYLAST   27
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  2
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  11
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  26
+#define YYNSTATES  28
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   266
@@ -529,8 +530,8 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    28,    28,    29,    30,    31,    32,    33,    34,    35,
-      36
+       0,    29,    29,    30,    31,    32,    33,    34,    35,    36,
+      37,    38
 };
 #endif
 
@@ -554,7 +555,7 @@ static const yytype_int16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF (-6)
+#define YYPACT_NINF (-4)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -568,9 +569,9 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -3,    -5,     4,     5,    -1,     6,     9,    10,    16,    -6,
-      11,    -6,    12,    -6,    14,    -6,    13,    15,    -6,    -6,
-      17,    18,    -6,    -6,    -6,    -6
+      -3,     6,     4,     7,     5,    -1,     8,    11,    12,    18,
+      -4,    13,    -4,    -4,    14,    -4,    16,    -4,    15,    17,
+      -4,    -4,    19,    20,    -4,    -4,    -4,    -4
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -578,21 +579,21 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     2,
-       0,     8,     0,    10,     0,     4,     0,     0,     1,     7,
-       0,     0,     5,     6,     9,     3
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       2,     0,     8,    11,     0,    10,     0,     4,     0,     0,
+       1,     7,     0,     0,     5,     6,     9,     3
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -6,    -6
+      -4,    -4
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     8
+      -1,     9
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -600,39 +601,39 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       1,     2,     9,     3,    14,     4,     5,     6,     7,    10,
-      12,    11,    13,    15,    16,    17,    18,    20,    19,    21,
-      22,     0,    23,     0,    24,    25
+       1,     2,     3,     4,    16,     5,     6,     7,     8,    11,
+      14,    12,    15,    10,    13,    17,    18,    19,    20,    22,
+      21,    23,    24,     0,    25,     0,    26,    27
 };
 
 static const yytype_int8 yycheck[] =
 {
-       3,     4,     7,     6,     5,     8,     9,    10,    11,     5,
-       5,     7,     7,     7,     5,     5,     0,     5,     7,     5,
-       7,    -1,     7,    -1,     7,     7
+       3,     4,     5,     6,     5,     8,     9,    10,    11,     5,
+       5,     7,     7,     7,     7,     7,     5,     5,     0,     5,
+       7,     5,     7,    -1,     7,    -1,     7,     7
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,     4,     6,     8,     9,    10,    11,    13,     7,
-       5,     7,     5,     7,     5,     7,     5,     5,     0,     7,
-       5,     5,     7,     7,     7,     7
+       0,     3,     4,     5,     6,     8,     9,    10,    11,    13,
+       7,     5,     7,     7,     5,     7,     5,     7,     5,     5,
+       0,     7,     5,     5,     7,     7,     7,     7
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
        0,    12,    13,    13,    13,    13,    13,    13,    13,    13,
-      13
+      13,    13
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     2,     4,     2,     3,     3,     3,     2,     4,
-       2
+       2,     2
 };
 
 
@@ -1328,61 +1329,67 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 28 "PARSER.y"
+#line 29 "PARSER.y"
                                                 {exit(1); return 1; }
-#line 1334 "PARSER.tab.c"
+#line 1335 "PARSER.tab.c"
     break;
 
   case 3:
-#line 29 "PARSER.y"
+#line 30 "PARSER.y"
                                     {setEnv((yyvsp[-2].string), (yyvsp[-1].string));  return 1;}
-#line 1340 "PARSER.tab.c"
+#line 1341 "PARSER.tab.c"
     break;
 
   case 4:
-#line 30 "PARSER.y"
+#line 31 "PARSER.y"
                                     {printEnv();  return 1;}
-#line 1346 "PARSER.tab.c"
+#line 1347 "PARSER.tab.c"
     break;
 
   case 5:
-#line 31 "PARSER.y"
+#line 32 "PARSER.y"
                                     {unsetEnv((yyvsp[-1].string));  return 1;}
-#line 1352 "PARSER.tab.c"
+#line 1353 "PARSER.tab.c"
     break;
 
   case 6:
-#line 32 "PARSER.y"
+#line 33 "PARSER.y"
                                     {unsetAlias((yyvsp[-1].string));  return 1;}
-#line 1358 "PARSER.tab.c"
+#line 1359 "PARSER.tab.c"
     break;
 
   case 7:
-#line 33 "PARSER.y"
+#line 34 "PARSER.y"
                                                 {runCD((yyvsp[-1].string));  return 1;}
-#line 1364 "PARSER.tab.c"
+#line 1365 "PARSER.tab.c"
     break;
 
   case 8:
-#line 34 "PARSER.y"
+#line 35 "PARSER.y"
                                                                 { runCDHome();  return 1;}
-#line 1370 "PARSER.tab.c"
+#line 1371 "PARSER.tab.c"
     break;
 
   case 9:
-#line 35 "PARSER.y"
+#line 36 "PARSER.y"
                                                 {runSetAlias((yyvsp[-2].string), (yyvsp[-1].string));  return 1;}
-#line 1376 "PARSER.tab.c"
+#line 1377 "PARSER.tab.c"
     break;
 
   case 10:
-#line 36 "PARSER.y"
+#line 37 "PARSER.y"
                                     { listAlias(); return 1;}
-#line 1382 "PARSER.tab.c"
+#line 1383 "PARSER.tab.c"
+    break;
+
+  case 11:
+#line 38 "PARSER.y"
+                                                        {runNonBuiltIn((yyvsp[-1].string)); return 1;}
+#line 1389 "PARSER.tab.c"
     break;
 
 
-#line 1386 "PARSER.tab.c"
+#line 1393 "PARSER.tab.c"
 
       default: break;
     }
@@ -1614,13 +1621,45 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 38 "PARSER.y"
+#line 40 "PARSER.y"
 
 
 int yyerror(char *s) {
   printf("%s\n",s);
   return 0;
   }
+
+
+int runNonBuiltIn(char* commandName) {
+	char binaryPath[40000 + 1];
+	char pathString[40000 + 1];
+	binaryPath[0] = '\0';
+	pathString[0] = '\0';
+
+	//strcpy(pathString, )
+
+	// DELETE THE .: from PATH WHEN USING IT!!!!!!
+
+	strcat(binaryPath, varTable.word[3]);
+	strcat(binaryPath, "/");
+	strcat(binaryPath, commandName);
+	printf("%s", binaryPath);
+	strcpy(binaryPath, "/bin/ls");
+
+	pid_t p = fork();
+
+	if (p <= 0) { //child process
+
+		int value = execl(binaryPath, binaryPath, NULL);
+		printf("%d", value);
+		exit(1);
+	}
+	else { 
+		waitpid(); 
+		return 1;
+	}
+
+}
 
 int setEnv(char* variable, char* word){
     for (int i = 0; i < varIndex; i++){
@@ -1692,6 +1731,9 @@ int runCDHome(void) {
 }
 
 int runCD(char* arg) {
+	if (strcmp(arg, ".") == 0) { // special case - cd .
+		return 1;
+	}
 	if (strcmp(arg, "..") == 0) { // special case - cd ..
 		int slashPos = findLastSlash(varTable.word[0]);
 		if (slashPos < 1) { //if the last '/' is on position 0, then we are in root

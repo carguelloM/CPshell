@@ -16,6 +16,7 @@ int printEnv(void);
 int unsetEnv(char* variable);
 int listAlias(void);
 int unsetAlias(char* name);
+int runNonBuiltIn(char* commandName);
 %}
 
 %union {char *string;}
@@ -34,6 +35,7 @@ cmd_line    :
 	| CD END						{ runCDHome();  return 1;}
 	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
     | ALIAS END                     { listAlias(); return 1;}
+	| STRING END					{runNonBuiltIn($1); return 1;}
 
 %%
 
@@ -41,6 +43,38 @@ int yyerror(char *s) {
   printf("%s\n",s);
   return 0;
   }
+
+
+int runNonBuiltIn(char* commandName) {
+	char binaryPath[40000 + 1];
+	char pathString[40000 + 1];
+	binaryPath[0] = '\0';
+	pathString[0] = '\0';
+
+	//strcpy(pathString, )
+
+	// DELETE THE .: from PATH WHEN USING IT!!!!!!
+
+	strcat(binaryPath, varTable.word[3]);
+	strcat(binaryPath, "/");
+	strcat(binaryPath, commandName);
+	printf("%s", binaryPath);
+	strcpy(binaryPath, "/bin/ls");
+
+	pid_t p = fork();
+
+	if (p <= 0) { //child process
+
+		int value = execl(binaryPath, binaryPath, NULL);
+		printf("%d", value);
+		exit(1);
+	}
+	else { 
+		waitpid(); 
+		return 1;
+	}
+
+}
 
 int setEnv(char* variable, char* word){
     for (int i = 0; i < varIndex; i++){
@@ -112,6 +146,9 @@ int runCDHome(void) {
 }
 
 int runCD(char* arg) {
+	if (strcmp(arg, ".") == 0) { // special case - cd .
+		return 1;
+	}
 	if (strcmp(arg, "..") == 0) { // special case - cd ..
 		int slashPos = findLastSlash(varTable.word[0]);
 		if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
