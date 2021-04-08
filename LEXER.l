@@ -19,6 +19,8 @@ bool ifAlias(char* name){
     }
     return false;
 }
+
+
 %}
 %array
 %option noyywrap
@@ -29,7 +31,21 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 
 %%
 
-<string_condition>{ANYCHAR}+     { yylval.string = strdup(yytext); return STRING;}
+<string_condition>{ANYCHAR}+     { 
+                            if(ifAlias(yytext) && !disableAliases) {
+                        printf("yytext: %s\n", yytext);
+                        //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
+                           char *yycopy = strdup( subAliases(yytext) );
+                           for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
+                               unput( yycopy[i] );
+                           free( yycopy );
+                    } else {
+                        printf("yytext: %s\n", yytext);
+                        yylval.string = strdup(yytext);
+                        return STRING;
+                    };
+    
+                                     }
 <string_condition>[\"]          {BEGIN(INITIAL);}
 
 [ ]		            { }
@@ -39,7 +55,7 @@ printenv            { return PRINTENV;}
 unsetenv            { return UNSETENV;}
 unalias             { disableAliases=true; return UNALIAS;}
 cd		            { return CD;}
-alias		        { return ALIAS; }
+alias		        { disableAliases=true; return ALIAS; }
 "\n"		        { return END; }
 [\"]                 { BEGIN(string_condition); }
 {CHAR}+              { 

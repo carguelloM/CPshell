@@ -29,11 +29,11 @@ cmd_line    :
     | SETENV STRING STRING END      {setEnv($2, $3); return 1;}
     | PRINTENV END                  {printEnv(); return 1;}
     | UNSETENV STRING END           {unsetEnv($2); return 1;}
-    | UNALIAS STRING END            {unsetAlias($2); return 1;}
+    | UNALIAS STRING END            {unsetAlias($2); disableAliases = false; return 1;}
 	| CD STRING END        			{runCD($2); return 1;}
 	| CD END						{ runCDHome(); return 1;}
-	| ALIAS STRING STRING END		{runSetAlias($2, $3); return 1;}
-    | ALIAS END                     { listAlias(); return 1;}
+	| ALIAS STRING STRING END		{runSetAlias($2, $3); disableAliases = false; return 1;}
+    | ALIAS END                     { listAlias(); disableAliases = false; return 1;}
 
 %%
 
@@ -195,10 +195,10 @@ int unsetAlias(char* name)
     {
         if(strcmp(aliasTable.name[i], name) == 0){
             strcpy(aliasTable.word[i], "");
-            disableAliases = false;
+            //disableAliases = false;
             return 1;
         }
     }
-    disableAliases = false;
+    //disableAliases = false;
     return 0;
 }
