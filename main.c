@@ -12,6 +12,7 @@ int main()
 {
     aliasIndex = 0;
     varIndex = 0;
+    wordCounter = 0;
 	disableAliases = false;
 
     getcwd(cwd, sizeof(cwd));

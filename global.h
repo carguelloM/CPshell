@@ -22,3 +22,5 @@ int aliasIndex, varIndex;
 bool disableAliases;
 
 char* subAliases(char* name);
+
+int wordCounter;

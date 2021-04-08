@@ -31,8 +31,8 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 
 %%
 
-<string_condition>{ANYCHAR}+     { 
-                            if(ifAlias(yytext) && !disableAliases) {
+<string_condition>{ANYCHAR}+     { wordCounter++;
+                            if(ifAlias(yytext) && (wordCounter == 1)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
@@ -49,17 +49,17 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 <string_condition>[\"]          {BEGIN(INITIAL);}
 
 [ ]		            { }
-bye                 { return BYE; }
-setenv              { return SETENV;}
-printenv            { return PRINTENV;}
-unsetenv            { return UNSETENV;}
-unalias             { disableAliases=true; return UNALIAS;}
-cd		            { return CD;}
-alias		        { disableAliases=true; return ALIAS; }
-"\n"		        { return END; }
+bye                 { wordCounter++;  return BYE; }
+setenv              { wordCounter++; return SETENV;}
+printenv            { wordCounter++; return PRINTENV;}
+unsetenv            { wordCounter++; return UNSETENV;}
+unalias             { wordCounter++; return UNALIAS;}
+cd		            { wordCounter++; return CD;}
+alias		        { wordCounter++; return ALIAS; }
+"\n"		        { wordCounter = 0; return END; }
 [\"]                 { BEGIN(string_condition); }
-{CHAR}+              { 
-                        if(ifAlias(yytext) && !disableAliases) {
+{CHAR}+              { wordCounter++;
+                        if(ifAlias(yytext) && (wordCounter ==1)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );

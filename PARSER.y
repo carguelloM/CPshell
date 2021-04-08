@@ -26,14 +26,14 @@ int unsetAlias(char* name);
 %%
 cmd_line    :
 	BYE END 		                {exit(1); return 1; }
-    | SETENV STRING STRING END      {setEnv($2, $3); return 1;}
-    | PRINTENV END                  {printEnv(); return 1;}
-    | UNSETENV STRING END           {unsetEnv($2); return 1;}
-    | UNALIAS STRING END            {unsetAlias($2); disableAliases = false; return 1;}
-	| CD STRING END        			{runCD($2); return 1;}
-	| CD END						{ runCDHome(); return 1;}
-	| ALIAS STRING STRING END		{runSetAlias($2, $3); disableAliases = false; return 1;}
-    | ALIAS END                     { listAlias(); disableAliases = false; return 1;}
+    | SETENV STRING STRING END      {setEnv($2, $3);  return 1;}
+    | PRINTENV END                  {printEnv();  return 1;}
+    | UNSETENV STRING END           {unsetEnv($2);  return 1;}
+    | UNALIAS STRING END            {unsetAlias($2);  return 1;}
+	| CD STRING END        			{runCD($2);  return 1;}
+	| CD END						{ runCDHome();  return 1;}
+	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
+    | ALIAS END                     { listAlias(); return 1;}
 
 %%
 

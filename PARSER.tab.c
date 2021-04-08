@@ -1335,49 +1335,49 @@ yyreduce:
 
   case 3:
 #line 29 "PARSER.y"
-                                    {setEnv((yyvsp[-2].string), (yyvsp[-1].string)); return 1;}
+                                    {setEnv((yyvsp[-2].string), (yyvsp[-1].string));  return 1;}
 #line 1340 "PARSER.tab.c"
     break;
 
   case 4:
 #line 30 "PARSER.y"
-                                    {printEnv(); return 1;}
+                                    {printEnv();  return 1;}
 #line 1346 "PARSER.tab.c"
     break;
 
   case 5:
 #line 31 "PARSER.y"
-                                    {unsetEnv((yyvsp[-1].string)); return 1;}
+                                    {unsetEnv((yyvsp[-1].string));  return 1;}
 #line 1352 "PARSER.tab.c"
     break;
 
   case 6:
 #line 32 "PARSER.y"
-                                    {unsetAlias((yyvsp[-1].string)); disableAliases = false; return 1;}
+                                    {unsetAlias((yyvsp[-1].string));  return 1;}
 #line 1358 "PARSER.tab.c"
     break;
 
   case 7:
 #line 33 "PARSER.y"
-                                                {runCD((yyvsp[-1].string)); return 1;}
+                                                {runCD((yyvsp[-1].string));  return 1;}
 #line 1364 "PARSER.tab.c"
     break;
 
   case 8:
 #line 34 "PARSER.y"
-                                                                { runCDHome(); return 1;}
+                                                                { runCDHome();  return 1;}
 #line 1370 "PARSER.tab.c"
     break;
 
   case 9:
 #line 35 "PARSER.y"
-                                                {runSetAlias((yyvsp[-2].string), (yyvsp[-1].string)); disableAliases = false; return 1;}
+                                                {runSetAlias((yyvsp[-2].string), (yyvsp[-1].string));  return 1;}
 #line 1376 "PARSER.tab.c"
     break;
 
   case 10:
 #line 36 "PARSER.y"
-                                    { listAlias(); disableAliases = false; return 1;}
+                                    { listAlias(); return 1;}
 #line 1382 "PARSER.tab.c"
     break;
 

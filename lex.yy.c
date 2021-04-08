@@ -783,8 +783,8 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 34 "LEXER.l"
-{ 
-                            if(ifAlias(yytext) && !disableAliases) {
+{ wordCounter++;
+                            if(ifAlias(yytext) && (wordCounter == 1)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
@@ -812,43 +812,43 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 52 "LEXER.l"
-{ return BYE; }
+{ wordCounter++;  return BYE; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 53 "LEXER.l"
-{ return SETENV;}
+{ wordCounter++; return SETENV;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 54 "LEXER.l"
-{ return PRINTENV;}
+{ wordCounter++; return PRINTENV;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 55 "LEXER.l"
-{ return UNSETENV;}
+{ wordCounter++; return UNSETENV;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 56 "LEXER.l"
-{ disableAliases=true; return UNALIAS;}
+{ wordCounter++; return UNALIAS;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 57 "LEXER.l"
-{ return CD;}
+{ wordCounter++; return CD;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 58 "LEXER.l"
-{ disableAliases=true; return ALIAS; }
+{ wordCounter++; return ALIAS; }
 	YY_BREAK
 case 11:
 /* rule 11 can match eol */
 YY_RULE_SETUP
 #line 59 "LEXER.l"
-{ return END; }
+{ wordCounter = 0; return END; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
@@ -858,8 +858,8 @@ YY_RULE_SETUP
 case 13:
 YY_RULE_SETUP
 #line 61 "LEXER.l"
-{ 
-                        if(ifAlias(yytext) && !disableAliases) {
+{ wordCounter++;
+                        if(ifAlias(yytext) && (wordCounter ==1)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
