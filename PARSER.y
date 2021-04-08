@@ -157,12 +157,16 @@ int runCD(char* arg) {
 	}
 }
 
+
+
 int runSetAlias(char *name, char *word) {
-	for (int i = 0; i < aliasIndex; i++) {
-		if(strcmp(name, word) == 0){
+	if(strcmp(name, word) == 0){
 			printf("Error, expansion of \"%s\" would create a loop.\n", name);
 			return 1;
 		}
+	
+	for (int i = 0; i < aliasIndex; i++) {
+		
 		else if((strcmp(aliasTable.name[i], name) == 0) && (strcmp(aliasTable.word[i], word) == 0)){
 			printf("Error, expansion of \"%s\" would create a loop.\n", name);
 			return 1;
