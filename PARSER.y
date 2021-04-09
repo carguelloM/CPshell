@@ -16,13 +16,14 @@ int printEnv(void);
 int unsetEnv(char* variable);
 int listAlias(void);
 int unsetAlias(char* name);
-int runNonBuiltIn(char* commandName);
+
 %}
 
 %union {char *string;}
 
 %start cmd_line
-%token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS
+%type<string> nonBuilt
+%token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS 
 
 %%
 cmd_line    :
@@ -35,7 +36,20 @@ cmd_line    :
 	| CD END						{ runCDHome();  return 1;}
 	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
     | ALIAS END                     { listAlias(); return 1;}
-	| STRING END					{runNonBuiltIn($1); return 1;}
+	| nonBuilt END					{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
+									argumentCounter = 0;
+									cmdTableIndex++;
+									 return 1;}
+;
+nonBuilt:
+	STRING										{strcpy(cmdTable.cmd[cmdTableIndex],$1);
+												cmdTable.arguments[cmdTableIndex].argumentNum = 0;
+												}
+	| nonBuilt STRING							{
+												strcpy(cmdTable.arguments[cmdTableIndex].argu[argumentCounter], $2);
+												argumentCounter++;
+												}
+							
 
 %%
 
@@ -45,54 +59,46 @@ int yyerror(char *s) {
   }
 
 
-int runNonBuiltIn(char* commandName) {
-	char binaryPath[40000 + 1];
-	char pathString[40000 + 1];
-	binaryPath[0] = '\0';
-	pathString[0] = '\0';
+int setPATH(char* word)
+{
+	char  PATH_COPY[100];
+	strcpy(PATH_COPY, varTable.word[3]);
+	char * currpath = strtok(PATH_COPY, ":");
 
-	//strcpy(pathString, )
-
-	// DELETE THE .: from PATH WHEN USING IT!!!!!!
-
-	strcat(binaryPath, varTable.word[3]);
-	strcat(binaryPath, "/");
-	strcat(binaryPath, commandName);
-	printf("%s", binaryPath);
-	strcpy(binaryPath, "/bin/ls");
-
-	pid_t p = fork();
-
-	if (p <= 0) { //child process
-
-		int value = execl(binaryPath, binaryPath, NULL);
-		printf("%d", value);
-		exit(1);
-	}
-	else { 
-		waitpid(); 
-		return 1;
+	while(currpath != NULL)
+	{	
+		if(strcmp(word, currpath) == 0)
+		{
+			printf("Already in PATH environment variable\n");
+			return 1;
+		}
+		// set currpath to next value in PATH env variable
+		currpath = strtok(NULL, ":");
 	}
 
+	strcat(varTable.word[3], ":");
+	strcat(varTable.word[3], word);
+	return 1;
 }
 
 int setEnv(char* variable, char* word){
-    for (int i = 0; i < varIndex; i++){
-
+	
+    if(strcmp(varTable.var[3],variable) == 0)
+	{
+		setPATH(word);
+		return 1;
+	}
+	for (int i = 0; i < varIndex; i++){
        if(strcmp(varTable.var[i], variable) == 0) {
+		   
 			strcpy(varTable.word[i], word);
 			return 1;
 		} 
-
-        else 
-        {
-            strcpy(varTable.var[varIndex], variable);
-	        strcpy(varTable.word[varIndex], word);
-	        varIndex++;
-            return 1;
-        }   
-    }
-    return 0;
+	}
+    strcpy(varTable.var[varIndex], variable);
+	strcpy(varTable.word[varIndex], word);
+	varIndex++;
+    return 1;
 }
 
 int printEnv(void){
@@ -107,7 +113,12 @@ int printEnv(void){
 }
 
 int unsetEnv(char*  variable)
-{
+{	
+	if (strcmp(variable, "PATH") == 0)
+	{
+		strcpy(varTable.word[3], ".");
+		return 1;
+	}
     for (int i = 0; i < varIndex; i++)
     {
         if(strcmp(varTable.var[i], variable) == 0){
