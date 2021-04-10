@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+ #include <fcntl.h>
 
 char *getcwd(char *buf, size_t size);
 int yyparse();
@@ -38,26 +39,103 @@ bool checkExeStatus (char* commandName){
 	return abletoExe;
 }
 
+bool checkFileReadStatus(int currCMD)
+{   
+    if(strcmp(cmdTable.inputFile[currCMD], "") == 0){
+        return false;
+    }
+    
+    char * filename = cmdTable.inputFile[currCMD];
 
-int runNonBuiltIn(char* commandName, int totalArgs) {
+    if(access(filename, F_OK) == 0)
+    {
+        if(access(filename, R_OK) == 0)
+        {
+            return true;
+        }
+
+        else{
+            printf("No read permission for: %s", filename);
+            exit(1);
+        }
+    }
+
+    char binaryPath[100];
+	binaryPath[0] = '/0';
+	bool abletoRead = false;
+	char  PATH_COPY[100];
+	strcpy(PATH_COPY, varTable.word[3]);
+	char * currpath = strtok(PATH_COPY, ":");
+
+    while(currpath != NULL)
+	{	
+		searchPath[0] = '\0';
+		strcat(searchPath, currpath);
+		strcat(searchPath, "/");
+		strcat(searchPath, cmdTable.inputFile[currCMD]);
+
+		if (access(searchPath, F_OK) == 0)
+		{   
+            if (access(searchPath, R_OK) == 0){
+                strcpy(cmdTable.inputFile[currCMD], searchPath);
+                return true;
+            }
+
+            else
+            {
+               printf("No read permission for: %s", searchPath);
+                exit(1);
+            }
+			
+		}
+		// set currpath to next value in PATH env variable
+		currpath = strtok(NULL, ":");
+	}
+
+  printf("File %s does not exist\n", cmdTable.inputFile[currCMD]);
+  exit(1);
+}
+
+
+
+
+int runNonBuiltIn(char* commandName, int totalArgs, int currCMD) {
 	pid_t child0 = fork();
 
 	if (child0 > 0) { //PARENT 
 		waitpid(child0, NULL,0); 
 		return 1;
-		
 	}
+
 	else { 
 		if(checkExeStatus(commandName))
 		{
+        bool in = checkFileReadStatus(currCMD);
+        bool out; 
+        
+     
         char *argtoPass[totalArgs + 2];
         argtoPass[0] = searchPath;
         argtoPass[totalArgs+1] = NULL;
         for (int i=1; i <= totalArgs; i++)
             {
-                argtoPass[i] = cmdTable.arguments[cmdTableIndex-1].argu[i-1];
+                argtoPass[i] = cmdTable.arguments[currCMD].argu[i-1];
             }
-       
+ 
+       if(in){
+           int fd0 = open(cmdTable.inputFile[currCMD], O_RDONLY);
+           if(fd0 != STDIN_FILENO)
+           {
+             dup2(fd0, STDIN_FILENO);
+           }
+           close(fd0);
+        }
+
+        if(out)
+        {
+            
+        }
+
         int value = execv(searchPath, argtoPass);
         
 		}
@@ -69,6 +147,7 @@ int runNonBuiltIn(char* commandName, int totalArgs) {
 	}
 
 }
+
 
 int main()
 {
@@ -99,12 +178,14 @@ int main()
        
 		printf("[%s]$ ", varTable.word[2]);
         yyparse();
-        printf("Current Index %d\n", cmdTableIndex);
+        //printf("Index = %d", cmdTableIndex-1);
+        printf("Current In: %s\n", cmdTable.inputFile[cmdTableIndex-1]);
+        //printf("Current Out: %s\n", cmdTable.outputFile[cmdTableIndex-1]);
         if(cmdTableIndex != 0)
-        {
+        {   
             char* runCMD = cmdTable.cmd[cmdTableIndex-1];
             int numargs = cmdTable.arguments[cmdTableIndex-1].argumentNum;
-            runNonBuiltIn(runCMD, numargs);
+            runNonBuiltIn(runCMD, numargs, cmdTableIndex-1);
             cmdTableIndex--;
         }
     }
