@@ -22,8 +22,8 @@ int unsetAlias(char* name);
 %union {char *string;}
 
 %start cmd_line
-%type<string> nonBuilt
-%token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS 
+%type<string> nonBuilt redirection
+%token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS IOIN IOUT
 
 %%
 cmd_line    :
@@ -36,10 +36,27 @@ cmd_line    :
 	| CD END						{ runCDHome();  return 1;}
 	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
     | ALIAS END                     { listAlias(); return 1;}
-	| nonBuilt END					{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
+	| redirection END				{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
 									argumentCounter = 0;
 									cmdTableIndex++;
+									return 1;}
+	| nonBuilt END					{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
+									argumentCounter = 0;
+									strcpy(cmdTable.inputFile[cmdTableIndex],"");
+									strcpy(cmdTable.outputFile[cmdTableIndex],"");
+									cmdTableIndex++;
 									 return 1;}
+	
+;
+redirection:
+	nonBuilt IOIN STRING						{strcpy(cmdTable.inputFile[cmdTableIndex],$3);
+												strcpy(cmdTable.outputFile[cmdTableIndex],"");}
+	| nonBuilt IOUT STRING						{strcpy(cmdTable.inputFile[cmdTableIndex],"");
+												strcpy(cmdTable.outputFile[cmdTableIndex],$3);
+												}											
+	| nonBuilt IOIN STRING IOUT STRING 			{strcpy(cmdTable.inputFile[cmdTableIndex],$3);
+												strcpy(cmdTable.outputFile[cmdTableIndex],$5);
+												}
 ;
 nonBuilt:
 	STRING										{strcpy(cmdTable.cmd[cmdTableIndex],$1);
@@ -48,9 +65,7 @@ nonBuilt:
 	| nonBuilt STRING							{
 												strcpy(cmdTable.arguments[cmdTableIndex].argu[argumentCounter], $2);
 												argumentCounter++;
-												}
-							
-
+												}		
 %%
 
 int yyerror(char *s) {
@@ -60,24 +75,35 @@ int yyerror(char *s) {
 
 
 int setPATH(char* word)
-{
+{	char *ptr1, *ptr2;
+	char WORD_COPY[100];
+	strcpy(WORD_COPY, word);
+	char* currword = strtok_r(WORD_COPY, ":", &ptr1);
 	char  PATH_COPY[100];
-	strcpy(PATH_COPY, varTable.word[3]);
-	char * currpath = strtok(PATH_COPY, ":");
-
-	while(currpath != NULL)
+	bool addToPATH;
+	while(currword != NULL)
 	{	
-		if(strcmp(word, currpath) == 0)
-		{
-			printf("Already in PATH environment variable\n");
-			return 1;
+		strcpy(PATH_COPY, varTable.word[3]);
+		char * currpath = strtok_r(PATH_COPY, ":", &ptr2);
+		addToPATH = true;
+		while(currpath != NULL)
+		{	
+			if(strcmp(currword, currpath) == 0)
+			{
+				printf("%s Already in PATH environment variable\n", currword);
+				addToPATH = false;
+				break;
+			}
+			// set currpath to next value in PATH env variable
+			currpath = strtok_r(NULL, ":", &ptr2);
 		}
-		// set currpath to next value in PATH env variable
-		currpath = strtok(NULL, ":");
+		if(addToPATH)
+		{
+		strcat(varTable.word[3], ":");
+		strcat(varTable.word[3], currword);
+		}
+		currword = strtok_r(NULL, ":", &ptr1);
 	}
-
-	strcat(varTable.word[3], ":");
-	strcat(varTable.word[3], word);
 	return 1;
 }
 

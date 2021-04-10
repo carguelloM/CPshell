@@ -19,6 +19,8 @@ struct argsTable{
 struct commandTable {
    char cmd[128][100];
    struct argsTable arguments[128];
+   char inputFile[120][100];
+   char outputFile[120][100];
 };
 
 char cwd[PATH_MAX];

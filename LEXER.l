@@ -26,8 +26,9 @@ bool ifAlias(char* name){
 %option noyywrap
 %x string_condition
 
-CHAR            [.A-Za-z0-9!\/_-][.A-Za-z0-9!\/_-]*
+CHAR            [.:~A-Za-z0-9!\/_-][.:~A-Za-z0-9!\/_-]*
 ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -]*
+
 
 %%
 
@@ -56,6 +57,8 @@ unsetenv            { wordCounter++; return UNSETENV;}
 unalias             { wordCounter++; return UNALIAS;}
 cd		            { wordCounter++; return CD;}
 alias		        { wordCounter++; return ALIAS; }
+"\<"                   {wordCounter++; return IOIN;}
+"\>"                   {wordCounter++; return IOUT;}
 "\n"		        { wordCounter = 0; return END; }
 [\"]                 { BEGIN(string_condition); }
 {CHAR}+              { wordCounter++;
