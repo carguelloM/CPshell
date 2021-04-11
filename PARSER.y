@@ -22,8 +22,8 @@ int unsetAlias(char* name);
 %union {char *string;}
 
 %start cmd_line
-%type<string> nonBuilt redirection
-%token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS IOIN IOUT
+%type<string> nonBuilt redirection err
+%token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS IOIN IOUT BACKGRND STDERR
 
 %%
 cmd_line    :
@@ -36,36 +36,68 @@ cmd_line    :
 	| CD END						{ runCDHome();  return 1;}
 	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
     | ALIAS END                     { listAlias(); return 1;}
-	| redirection END				{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
+	| redirection  END				{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
 									argumentCounter = 0;
 									cmdTableIndex++;
 									return 1;}
-	| nonBuilt END					{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
+	| nonBuilt err END					{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
 									argumentCounter = 0;
 									strcpy(cmdTable.inputFile[cmdTableIndex],"");
 									strcpy(cmdTable.outputFile[cmdTableIndex],"");
+									cmdTable.append[cmdTableIndex] = false;
 									cmdTableIndex++;
-									 return 1;}
-	
+									 return 1;}	
 ;
 redirection:
-	nonBuilt IOIN STRING						{strcpy(cmdTable.inputFile[cmdTableIndex],$3);
-												strcpy(cmdTable.outputFile[cmdTableIndex],"");}
-	| nonBuilt IOUT STRING						{strcpy(cmdTable.inputFile[cmdTableIndex],"");
-												strcpy(cmdTable.outputFile[cmdTableIndex],$3);
-												}											
-	| nonBuilt IOIN STRING IOUT STRING 			{strcpy(cmdTable.inputFile[cmdTableIndex],$3);
-												strcpy(cmdTable.outputFile[cmdTableIndex],$5);
+	nonBuilt IOIN STRING err					{strcpy(cmdTable.inputFile[cmdTableIndex],$3);
+												strcpy(cmdTable.outputFile[cmdTableIndex],"");
+												cmdTable.append[cmdTableIndex] = false;
 												}
+	| nonBuilt IOUT STRING err					{strcpy(cmdTable.inputFile[cmdTableIndex],"");
+												strcpy(cmdTable.outputFile[cmdTableIndex],$3);
+												cmdTable.append[cmdTableIndex] = false;
+												}
+	| nonBuilt IOUT IOUT STRING	err				{
+												strcpy(cmdTable.inputFile[cmdTableIndex],"");
+												strcpy(cmdTable.outputFile[cmdTableIndex],$4);
+												cmdTable.append[cmdTableIndex] = true;
+												}						
+	| nonBuilt IOIN STRING IOUT STRING	err		{strcpy(cmdTable.inputFile[cmdTableIndex],$3);
+												strcpy(cmdTable.outputFile[cmdTableIndex],$5);
+												cmdTable.append[cmdTableIndex] = false;
+												}
+	| nonBuilt IOIN STRING IOUT IOUT STRING	err		{strcpy(cmdTable.inputFile[cmdTableIndex],$3);
+												strcpy(cmdTable.outputFile[cmdTableIndex],$6);
+												cmdTable.append[cmdTableIndex] = true;
+												}										
 ;
+
 nonBuilt:
-	STRING										{strcpy(cmdTable.cmd[cmdTableIndex],$1);
+	STRING										{
+												strcpy(cmdTable.cmd[cmdTableIndex],$1);
 												cmdTable.arguments[cmdTableIndex].argumentNum = 0;
 												}
 	| nonBuilt STRING							{
 												strcpy(cmdTable.arguments[cmdTableIndex].argu[argumentCounter], $2);
 												argumentCounter++;
-												}		
+												}	
+
+err:		
+													{
+														strcpy(cmdTable.errRedirectFile[cmdTableIndex], "");
+													}
+	| STDERR STRING									{strcpy(cmdTable.errRedirectFile[cmdTableIndex], $2);}
+	| STDERR BACKGRND STRING						{	
+													if(strcmp($3,"1") == 0){
+														strcpy(cmdTable.errRedirectFile[cmdTableIndex], "STDOUT_FILENO");
+														}
+													else{
+														printf("Invalid I/O Redirection\n");
+														termianlErr = true;
+														}
+													}
+;
+	
 %%
 
 int yyerror(char *s) {

@@ -19,8 +19,10 @@ struct argsTable{
 struct commandTable {
    char cmd[128][100];
    struct argsTable arguments[128];
-   char inputFile[120][100];
-   char outputFile[120][100];
+   char inputFile[128][100];
+   char outputFile[128][100];
+   char errRedirectFile[128][120];
+   bool append[128];
 };
 
 char cwd[PATH_MAX];
@@ -35,6 +37,7 @@ int aliasIndex, varIndex, cmdTableIndex;
 char searchPath[100];
 int wordCounter;
 int argumentCounter;
+bool termianlErr;
 
 char* subAliases(char* name);
 

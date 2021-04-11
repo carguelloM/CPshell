@@ -97,9 +97,15 @@ bool checkFileReadStatus(int currCMD)
 }
 
 
-bool checkFileWriteStatus(currCMD)
+bool checkFileWriteStatus(int currCMD, int errorOutput)
 {
-    char * filename = cmdTable.outputFile[currCMD];
+    char * filename;
+    if(errorOutput == 1){
+        filename = cmdTable.errRedirectFile[currCMD];
+    }
+    else{
+        filename = cmdTable.outputFile[currCMD];
+    }
 
     if(access(filename, W_OK) == 0)
     {
@@ -130,10 +136,15 @@ int runNonBuiltIn(char* commandName, int totalArgs, int currCMD) {
 		{
         bool in = checkFileReadStatus(currCMD);
         bool out = false;
-
-        if((strcmp(cmdTable.outputFile[currCMD], "") != 0) && checkFileWriteStatus(currCMD))
+        bool errRed = false;
+        if((strcmp(cmdTable.outputFile[currCMD], "") != 0) && checkFileWriteStatus(currCMD,0))
         {
             out = true;
+        }
+
+        if(strcmp(cmdTable.errRedirectFile[currCMD], "") != 0){
+            printf("HERE");
+            errRed = true;
         }
         
         char *argtoPass[totalArgs + 2];
@@ -154,12 +165,39 @@ int runNonBuiltIn(char* commandName, int totalArgs, int currCMD) {
         }
 
         if(out){   
-            int fd1 = open(cmdTable.outputFile[currCMD], O_WRONLY);
-            if(fd1 != STDOUT_FILENO)
-           {
-             dup2(fd1, STDOUT_FILENO);
-           }
-           close(fd1);
+            if(!cmdTable.append[currCMD]){
+            int fd1 = creat(cmdTable.outputFile[currCMD], 0644);
+             if(fd1 != STDOUT_FILENO)
+                {
+                dup2(fd1, STDOUT_FILENO);
+                }
+            close(fd1);
+            }
+            else{
+                int fd1 = open(cmdTable.outputFile[currCMD], O_WRONLY|O_APPEND);
+                if(fd1 != STDOUT_FILENO)
+                {
+                dup2(fd1, STDOUT_FILENO);
+                }
+                close(fd1);
+            }
+        }
+
+        if(errRed)
+        {   
+            if(strcmp(cmdTable.errRedirectFile[currCMD], "STDOUT_FILENO") == 0)
+            {
+                dup2(STDOUT_FILENO, STDERR_FILENO);
+            }
+            else{
+                bool tryFile = checkFileWriteStatus(currCMD,1);
+                int fd2 = creat(cmdTable.errRedirectFile[currCMD], 0644);
+                 if(fd2 != STDERR_FILENO)
+                {
+                    dup2(fd2, STDERR_FILENO);
+                }
+                close(fd2);
+            }
         }
 
         int value = execv(searchPath, argtoPass);
@@ -182,7 +220,7 @@ int main()
     wordCounter = 0;
     cmdTableIndex = 0;
     argumentCounter = 0;
-	
+	termianlErr = false;
     getcwd(cwd, sizeof(cwd));
 
     strcpy(varTable.var[varIndex], "PWD");
@@ -204,9 +242,12 @@ int main()
        
 		printf("[%s]$ ", varTable.word[2]);
         yyparse();
-        //printf("Index = %d", cmdTableIndex-1);
-        printf("Current In: %s\n", cmdTable.inputFile[cmdTableIndex-1]);
-        //printf("Current Out: %s\n", cmdTable.outputFile[cmdTableIndex-1]);
+        //printf("LOOK: %s\n", cmdTable.errRedirectFile[cmdTableIndex-1]);
+        if(termianlErr)
+        {
+            termianlErr = false;
+            continue;
+        }
         if(cmdTableIndex != 0)
         {   
             char* runCMD = cmdTable.cmd[cmdTableIndex-1];

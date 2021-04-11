@@ -6,6 +6,7 @@
 char* subAliases(char* name){
     for (int i = 0; i < aliasIndex; i++) {
         if(strcmp(aliasTable.name[i], name) == 0) {
+            wordCounter = 0;
             return aliasTable.word[i];
         }
     }
@@ -57,11 +58,13 @@ unsetenv            { wordCounter++; return UNSETENV;}
 unalias             { wordCounter++; return UNALIAS;}
 cd		            { wordCounter++; return CD;}
 alias		        { wordCounter++; return ALIAS; }
-"\<"                   {wordCounter++; return IOIN;}
-"\>"                   {wordCounter++; return IOUT;}
+2"\>"               {wordCounter++;  return STDERR;}
+"\<"                 {wordCounter++; return IOIN;}
+"\>"                {wordCounter++; return IOUT;}
 "\n"		        { wordCounter = 0; return END; }
+&                   {wordCounter++; return BACKGRND;}
 [\"]                 { BEGIN(string_condition); }
-{CHAR}+              { wordCounter++;
+{CHAR}+              {wordCounter++;
                         if(ifAlias(yytext) && (wordCounter ==1)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
