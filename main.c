@@ -107,7 +107,7 @@ bool checkFileWriteStatus(int currCMD, int errorOutput)
         filename = cmdTable.outputFile[currCMD];
     }
 
-    if(access(filename, W_OK) == 0)
+    if(access(filename, F_OK) == 0)
     {
         if(access(filename, W_OK) == 0)
         {

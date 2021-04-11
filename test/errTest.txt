@@ -1,5 +1,4 @@
-Uehsha
-Go Gators
-Hello World
-Hello Goodbye
-No
+PWD=/Users/cesararguello/Documents/nutshell/test
+HOME=/Users/cesararguello/Documents/nutshell
+PROMPT=nutshell-CP
+PATH=.:/bin

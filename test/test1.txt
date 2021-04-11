@@ -1,4 +1,7 @@
-Hello World
-Go Gators
-It's Friday
-I love you
+PWD=/Users/cesararguello/Documents/nutshell/test
+HOME=/Users/cesararguello/Documents/nutshell
+PROMPT=nutshell-CP
+PATH=.:/bin
+a=b
+d=c
+apple=red

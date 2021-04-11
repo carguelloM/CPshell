@@ -13,6 +13,8 @@ int findLastSlash(char *arg);
 int runSetAlias(char *name, char *word);
 int setEnv(char* variable, char* word);
 int printEnv(void);
+int printEnvFile(char *filename, int append);
+int printAliasFile(char *filename, int append);
 int unsetEnv(char* variable);
 int listAlias(void);
 int unsetAlias(char* name);
@@ -30,12 +32,16 @@ cmd_line    :
 	BYE END 		                {exit(1); return 1; }
     | SETENV STRING STRING END      {setEnv($2, $3);  return 1;}
     | PRINTENV END                  {printEnv();  return 1;}
+	| PRINTENV IOUT	STRING END		{printEnvFile($3, 0); return 1;}
+	| PRINTENV IOUT IOUT STRING END	{printEnvFile($4, 1); return 1;}					
     | UNSETENV STRING END           {unsetEnv($2);  return 1;}
     | UNALIAS STRING END            {unsetAlias($2);  return 1;}
 	| CD STRING END        			{runCD($2);  return 1;}
 	| CD END						{ runCDHome();  return 1;}
 	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
     | ALIAS END                     { listAlias(); return 1;}
+	| ALIAS IOUT STRING END			{printAliasFile($3,0); return 1;}
+	| ALIAS IOUT IOUT STRING END		{printAliasFile($4,1); return 1;}
 	| redirection  END				{cmdTable.arguments[cmdTableIndex].argumentNum = argumentCounter;
 									argumentCounter = 0;
 									cmdTableIndex++;
@@ -157,6 +163,91 @@ int setEnv(char* variable, char* word){
 	strcpy(varTable.word[varIndex], word);
 	varIndex++;
     return 1;
+}
+int printEnvFile(char* filename , int append){
+	//Check for absolute path
+	char nameToWrite[100];
+	if(access(filename, F_OK) == 0)
+    {
+        if(access(filename, W_OK) == 0)
+        {
+           strcpy(nameToWrite,filename);
+        }
+
+        else{
+            printf("No write permission for: %s", filename);
+            return 1;
+        }
+    }
+	else{
+		strcat("/",nameToWrite);
+		
+		if(access(nameToWrite, W_OK) != 0)
+		{
+			printf("No write permission for: %s", filename);
+				return 1;
+		} 
+	}
+
+	FILE * fp;
+	if(append != 1)
+	{
+	fp = fopen(nameToWrite,"w+");
+	}
+	else
+	{
+	fp = fopen(nameToWrite,"a");
+	}
+	for (int i=0; i < varIndex; i++)
+	{	if(strcmp(varTable.word[i], "") != 0){
+			fprintf(fp, "%s=%s\n", varTable.var[i], varTable.word[i]);
+			}
+	}
+	fclose(fp);
+	return 1;
+}
+
+int printAliasFile(char *filename, int append){
+	//Check for absolute path
+	char nameToWrite[100];
+	if(access(filename, F_OK) == 0)
+    {
+        if(access(filename, W_OK) == 0)
+        {
+           strcpy(nameToWrite,filename);
+        }
+
+        else{
+            printf("No write permission for: %s", filename);
+            return 1;
+        }
+    }
+	else{
+		strcat("/",nameToWrite);
+		
+		if(access(nameToWrite, W_OK) != 0)
+		{
+			printf("No write permission for: %s", filename);
+				return 1;
+		} 
+	}
+
+	FILE * fp;
+	if(append != 1)
+	{
+	fp = fopen(nameToWrite,"w+");
+	}
+	else
+	{
+	fp = fopen(nameToWrite,"a");
+	}
+	for (int i=0; i < varIndex; i++)
+	{	if(strcmp(aliasTable.word[i], "") != 0){
+			fprintf(fp, "%s=%s\n", aliasTable.name[i], aliasTable.word[i]);
+			}
+	}
+	fclose(fp);
+	return 1;
 }
 
 int printEnv(void){
