@@ -110,22 +110,25 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 
 %%
 
-<string_condition>{ANYCHAR}+     { wordCounter++;
-                            if(ifAlias(yytext) && (wordCounter == 1)) {
-                        printf("yytext: %s\n", yytext);
-                        //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
-                           char *yycopy = strdup( subAliases(yytext) );
-                           for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
-                               unput( yycopy[i] );
-                           free( yycopy );
-                    } else {
-                        printf("yytext: %s\n", yytext);
-                        yylval.string = strdup(yytext);
-                        return STRING;
-                    };
+<string_condition>(($\{{ANYCHAR}+\})|{ANYCHAR}+)+   { 
+                                    wordCounter++;
 
-    
-                                     }
+                                    char *newWord = (char *)calloc(1, 40000);
+                                    expandVars(yytext, newWord);
+
+                                    if(ifAlias(newWord) && (wordCounter == 1)) {
+                                        printf("yytext: %s\n", yytext);
+                                        //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
+                                        char *yycopy = strdup( subAliases(newWord) );
+                                        for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
+                                            unput( yycopy[i] );
+                                        free( yycopy );
+                                    } else {
+                                        printf("yytext: %s\n", yytext);
+                                        yylval.string = strdup(newWord);
+                                        return STRING;
+                                    };
+                                }
 <string_condition>[\"]          {BEGIN(INITIAL);}
 
 
