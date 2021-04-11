@@ -78,7 +78,6 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 
 
 <variable_expansion>{CHAR}+   { 
-                        printf("Got here!");
                         wordCounter++;
                         if(ifVariable(yytext)) 
                         {
