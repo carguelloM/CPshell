@@ -44,6 +44,58 @@ bool ifVariable(char* name){
 }
 
 
+void expandVars(char* word, char* newWord){
+    //char *newWord = (char *)calloc(1, 40000);
+    char* curr = &word[0];
+    char* start = NULL;
+    char* end = NULL;
+    int pos = 0;
+    int length = 0;
+    bool varMatch = false;
+    bool betweenBraces = false;
+    while (*curr != '\0')
+    {
+        if (*curr == '$') 
+        {
+            start = curr + 2;
+            betweenBraces = true;
+        }
+        else if (*curr == '}')
+        {
+            end = curr;
+            char *varName = (char *)calloc(1, end - start + 1);
+  			memcpy(varName, start, end - start);
+            
+            //Scanning varTable
+            for (int i = 0; i < varIndex; i++) 
+            {
+                if(strcmp(varTable.var[i], varName) == 0) 
+                {
+                    newWord = strcat(newWord, varTable.word[i]);
+                    varMatch = true;
+                    break;
+                }
+            }
+            if (!varMatch) 
+            {
+                newWord = strcat(newWord, varName);
+            }
+            varMatch = false;
+            pos = strlen(newWord);
+            betweenBraces = false;
+        }
+        else if (*curr != '{')
+        {
+            if (!betweenBraces)
+            {
+                newWord[pos] = *curr;
+            }
+            pos++;
+        }
+
+        curr++;
+    }
+}
 
 
 %}
@@ -77,25 +129,7 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 <string_condition>[\"]          {BEGIN(INITIAL);}
 
 
-<variable_expansion>{CHAR}+   { 
-                        wordCounter++;
-                        if(ifVariable(yytext)) 
-                        {
-                            printf("yytext: %s\n", yytext);
-                            //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
-                            char *yycopy = strdup( expandVar(yytext) );
-                            for ( int i = strlen(expandVar(yytext)) - 1; i >= 0; --i )
-                               unput( yycopy[i] );
-                            free( yycopy );
-                        } else {
-                            printf("yytext: %s\n", yytext);
-                            yylval.string = strdup(yytext);
-                            return STRING;
-                        };
 
-                    }
-
-<variable_expansion>[}]         {BEGIN(INITIAL);}
 
 [ ]		            { }
 bye                 { wordCounter++;  return BYE; }
@@ -111,23 +145,33 @@ alias		        { wordCounter++; return ALIAS; }
 "\n"		        { wordCounter = 0; return END; }
 &                   {wordCounter++; return BACKGRND;}
 [\"]                 { BEGIN(string_condition); }
-[${]                {BEGIN(variable_expansion); }
 
 
 
 
-{CHAR}+              {
+(($\{{CHAR}+\})|{CHAR}+)+              {
                         wordCounter++;
-                        if(ifAlias(yytext) && (wordCounter ==1)) {
+
+                        char *newWord = (char *)calloc(1, 40000);
+                        expandVars(yytext, newWord);
+
+                        if(ifAlias(newWord) && (wordCounter ==1)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
-                           char *yycopy = strdup( subAliases(yytext) );
-                           for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
+                           char *yycopy = strdup( subAliases(newWord) );
+                           for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
                                unput( yycopy[i] );
                            free( yycopy );
+
+                           //WILDCARD
+
+
                     } else {
+                        //WILDCARD
+
+
                         printf("yytext: %s\n", yytext);
-                        yylval.string = strdup(yytext);
+                        yylval.string = strdup(newWord);
                         return STRING;
                     };
                      }
