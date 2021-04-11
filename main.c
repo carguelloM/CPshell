@@ -13,7 +13,7 @@ int yyparse();
 
 bool checkExeStatus (char* commandName){
 	char binaryPath[100];
-	binaryPath[0] = '/0';
+	strcpy(binaryPath,"");
 	struct stat sb;
 	bool abletoExe = false;
 	char  PATH_COPY[100];
@@ -22,7 +22,7 @@ bool checkExeStatus (char* commandName){
 
 	while(currpath != NULL)
 	{	
-		searchPath[0] = '\0';
+		strcpy(searchPath,"");
 		strcat(searchPath, currpath);
 		strcat(searchPath, "/");
 		strcat(searchPath, commandName);
@@ -61,7 +61,7 @@ bool checkFileReadStatus(int currCMD)
     }
 
     char binaryPath[100];
-	binaryPath[0] = '/0';
+	strcpy(binaryPath, "");
 	bool abletoRead = false;
 	char  PATH_COPY[100];
 	strcpy(PATH_COPY, varTable.word[3]);
