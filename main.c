@@ -97,12 +97,30 @@ bool checkFileReadStatus(int currCMD)
 }
 
 
+bool checkFileWriteStatus(currCMD)
+{
+    char * filename = cmdTable.outputFile[currCMD];
 
+    if(access(filename, W_OK) == 0)
+    {
+        if(access(filename, W_OK) == 0)
+        {
+            return true;
+        }
+
+        else{
+            printf("No write permission for: %s", filename);
+            exit(1);
+        }
+    }
+    printf("File %s does not exist \n", cmdTable.inputFile[currCMD]);
+    exit(1);
+}
 
 int runNonBuiltIn(char* commandName, int totalArgs, int currCMD) {
 	pid_t child0 = fork();
 
-	if (child0 > 0) { //PARENT 
+    if (child0 > 0) { //PARENT 
 		waitpid(child0, NULL,0); 
 		return 1;
 	}
@@ -111,9 +129,13 @@ int runNonBuiltIn(char* commandName, int totalArgs, int currCMD) {
 		if(checkExeStatus(commandName))
 		{
         bool in = checkFileReadStatus(currCMD);
-        bool out; 
+        bool out = false;
+
+        if((strcmp(cmdTable.outputFile[currCMD], "") != 0) && checkFileWriteStatus(currCMD))
+        {
+            out = true;
+        }
         
-     
         char *argtoPass[totalArgs + 2];
         argtoPass[0] = searchPath;
         argtoPass[totalArgs+1] = NULL;
@@ -131,9 +153,13 @@ int runNonBuiltIn(char* commandName, int totalArgs, int currCMD) {
            close(fd0);
         }
 
-        if(out)
-        {
-            
+        if(out){   
+            int fd1 = open(cmdTable.outputFile[currCMD], O_WRONLY);
+            if(fd1 != STDOUT_FILENO)
+           {
+             dup2(fd1, STDOUT_FILENO);
+           }
+           close(fd1);
         }
 
         int value = execv(searchPath, argtoPass);
