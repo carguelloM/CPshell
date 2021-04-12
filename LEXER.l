@@ -3,6 +3,7 @@
 #include <string.h>
 #include <dirent.h> 
 #include <regex.h> 
+#include <pwd.h>
 
 #include "global.h"
 
@@ -113,6 +114,26 @@ bool regexMatch(int returnValue){
   }
 }
 
+void expandTilde(char* word, char* newWord)
+{
+    int length = strlen(word);
+
+    char* start = &word[1];
+    char *end = &word[length-1];
+	char *substr = (char *)calloc(1, end - start + 2);
+  	memcpy(substr, start, end - start + 1);
+
+    char* pwName = (char *)calloc(1, 400000);
+    //passwd* PASSWORD = getpwnam(substr);
+
+    printf("   --   %s     --- ", substr);
+    pwName = getpwnam(substr)->pw_dir;
+
+    //struct passwd* PASSWORD = getpwnam(substr);
+    //pwName = PASSWORD->pw_dir;
+
+    printf("*****   %s ******", pwName);
+}
 
 void expandWildcards(char* word, char* newWord) 
 {
@@ -221,6 +242,7 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 <string_condition>(($\{{ANYCHAR}+\})|{ANYCHAR}+)+   { 
                                     wordCounter++;
 
+
                                     char *newWord = (char *)calloc(1, 40000);
                                     expandVars(yytext, newWord);
 
@@ -260,9 +282,15 @@ alias		        { wordCounter++; return ALIAS; }
 
 
 
-(($\{{CHAR}+\})|{CHAR}+)+              {
+(\<|\~)(($\{{CHAR}+\})|{CHAR}+)+              {
                         wordCounter++;
 
+                        if (yytext[0] == '~')
+                        {
+                            printf("GOT Here" );
+                            char *newWordTilde = (char *)calloc(1, 40000);
+                            expandTilde(yytext, newWordTilde);
+                        }                        
                         char *middleWord = (char *)calloc(1, 4000);
                         expandVars(yytext, middleWord);
 
