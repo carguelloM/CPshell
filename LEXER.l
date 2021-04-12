@@ -124,7 +124,7 @@ void expandWildcards(char* word, char* newWord)
     else 
     {
         ///// CONSTRUCT REGEX /////
-        char *regexStr = (char *)calloc(1, 40000);
+        char *regexStr = (char *)calloc(1, 4000);
         char* curr = &word[0];
         int pos = 0;
 
@@ -190,10 +190,12 @@ void expandWildcards(char* word, char* newWord)
         // Sorting 
         qsort(filesTable, fileIndex, maxLength+1, strcmp);
 
-
+        
         for (int i = 0; i < fileIndex; i++)
         {
             printf("%s ", filesTable[i]);
+            newWord = strcat(newWord, " ");
+            newWord = strcat(newWord, filesTable[i]);
         }
 
         // Cleaning the table
@@ -261,11 +263,12 @@ alias		        { wordCounter++; return ALIAS; }
 (($\{{CHAR}+\})|{CHAR}+)+              {
                         wordCounter++;
 
-                        char *newWord = (char *)calloc(1, 40000);
-                        expandVars(yytext, newWord);
+                        char *middleWord = (char *)calloc(1, 4000);
+                        expandVars(yytext, middleWord);
 
                         //WILDCARD
-                        expandWildcards(newWord, newWord);
+                        char *newWord = (char *)calloc(1, 4000);
+                        expandWildcards(middleWord, newWord);
 
 
                         if(ifAlias(newWord) && (wordCounter ==1)) {
