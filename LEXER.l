@@ -1,6 +1,8 @@
 %{
 #include "PARSER.tab.h"
 #include <string.h>
+#include <dirent.h> 
+
 #include "global.h"
 
 char* subAliases(char* name){
@@ -98,13 +100,73 @@ void expandVars(char* word, char* newWord){
 }
 
 
+
+void expandWildcards(char* word, char* newWord) 
+{
+    if(strchr(word, '*') == NULL && strchr(word, '?') == NULL)
+    {
+        strcpy(newWord, word);
+        return;
+    }
+    else 
+    {
+        ///// CONSTRUCT REGEX /////
+        char *regexStr = (char *)calloc(1, 40000);
+        char* curr = &word[0];
+        char* start = NULL;
+        char* end = NULL;
+        int pos = 0;
+        int length = 0;
+        bool varMatch = false;
+        bool betweenBraces = false;
+
+        regexStr[0] = '^';
+        while (*curr != '\0')
+        {
+            if (*curr == '*') 
+            {
+                regexStr = strcat(regexStr, "[.:~A-Za-z0-9!\/_-]*"); //RESTRICT
+                pos = strlen(regexStr);
+            }
+            else if (*curr == '?')
+            {
+                regexStr = strcat(regexStr, "[.:~A-Za-z0-9!\/_-]"); //RESTRICT
+                pos = strlen(regexStr);
+            }
+            else
+            {
+                regexStr[pos] = *curr;
+                pos++;
+            }
+
+            curr++;
+        }
+
+        regexStr = strcat(regexStr, "$");
+
+        printf("--  %s  -- ", regexStr);
+        ///////////////////////////
+        DIR *d;
+        struct dirent *dir;
+        d = opendir(".");
+        if (d) {
+            while ((dir = readdir(d)) != NULL) {
+                printf("%s\n", dir->d_name);
+            }
+        closedir(d);
+        }
+
+
+    }
+}
+
 %}
 %array
 %option noyywrap
 %x string_condition
 %x variable_expansion
 
-CHAR            [.:~A-Za-z0-9!\/_-][.:~A-Za-z0-9!\/_-]*
+CHAR            [.:~A-Za-z0-9!\/_/*/?-][.:~A-Za-z0-9!\/_/*/?-]*
 ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -]*
 
 
@@ -158,6 +220,10 @@ alias		        { wordCounter++; return ALIAS; }
                         char *newWord = (char *)calloc(1, 40000);
                         expandVars(yytext, newWord);
 
+                        //WILDCARD
+                        expandWildcards(newWord, newWord);
+
+
                         if(ifAlias(newWord) && (wordCounter ==1)) {
                         printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
@@ -166,7 +232,7 @@ alias		        { wordCounter++; return ALIAS; }
                                unput( yycopy[i] );
                            free( yycopy );
 
-                           //WILDCARD
+                        
 
 
                     } else {
