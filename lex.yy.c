@@ -517,6 +517,7 @@ char *yytext_ptr;
 #include "PARSER.tab.h"
 #include <string.h>
 #include <dirent.h> 
+#include <regex.h> 
 
 #include "global.h"
 
@@ -614,6 +615,18 @@ void expandVars(char* word, char* newWord){
     }
 }
 
+bool regexMatch(int returnValue){
+  if (returnValue == 0){
+    return true;
+  }
+  else if (returnValue == REG_NOMATCH){
+    return false;
+  }
+  else{
+    printf("An error occured.\n");
+    return false;
+  }
+}
 
 
 void expandWildcards(char* word, char* newWord) 
@@ -628,12 +641,8 @@ void expandWildcards(char* word, char* newWord)
         ///// CONSTRUCT REGEX /////
         char *regexStr = (char *)calloc(1, 40000);
         char* curr = &word[0];
-        char* start = NULL;
-        char* end = NULL;
         int pos = 0;
-        int length = 0;
-        bool varMatch = false;
-        bool betweenBraces = false;
+
 
         regexStr[0] = '^';
         while (*curr != '\0')
@@ -660,24 +669,59 @@ void expandWildcards(char* word, char* newWord)
         regexStr = strcat(regexStr, "$");
 
         printf("--  %s  -- ", regexStr);
+        
+        //// COMPILING REGEX //////
+        regex_t regex;
+        int returnValue = regcomp(&regex,regexStr,0);
+
         ///////////////////////////
+        int numFiles = 0;
+        int maxLength = 0;
+
+
+        // Copying to the table
+        int fileIndex = 0;
+
         DIR *d;
         struct dirent *dir;
         d = opendir(".");
         if (d) {
             while ((dir = readdir(d)) != NULL) {
-                printf("%s\n", dir->d_name);
+                returnValue = regexec(&regex, dir->d_name, 0, NULL, 0);
+                if (regexMatch(returnValue)) 
+                {
+                    strcpy(filesTable[fileIndex], dir->d_name);
+                    fileIndex++;
+
+                    if (strlen(dir->d_name) > maxLength)
+                    {
+                        maxLength = strlen(dir->d_name);
+                    }
+                }
             }
         closedir(d);
         }
 
+        // Sorting 
+        qsort(filesTable, fileIndex, maxLength+1, strcmp);
 
+
+        for (int i = 0; i < fileIndex; i++)
+        {
+            printf("%s ", filesTable[i]);
+        }
+
+        // Cleaning the table
+        for (int i = 0; i < fileIndex; i++)
+        {
+            strcpy(filesTable[i], "");
+        }
     }
 }
 
-#line 679 "lex.yy.c"
+#line 723 "lex.yy.c"
 
-#line 681 "lex.yy.c"
+#line 725 "lex.yy.c"
 
 #define INITIAL 0
 #define string_condition 1
@@ -896,10 +940,10 @@ YY_DECL
 		}
 
 	{
-#line 173 "LEXER.l"
+#line 217 "LEXER.l"
 
 
-#line 903 "lex.yy.c"
+#line 947 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -958,7 +1002,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 175 "LEXER.l"
+#line 219 "LEXER.l"
 { 
                                     wordCounter++;
 
@@ -981,83 +1025,83 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 194 "LEXER.l"
+#line 238 "LEXER.l"
 {BEGIN(INITIAL);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 199 "LEXER.l"
+#line 243 "LEXER.l"
 { }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 200 "LEXER.l"
+#line 244 "LEXER.l"
 { wordCounter++;  return BYE; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 201 "LEXER.l"
+#line 245 "LEXER.l"
 { wordCounter++; return SETENV;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 202 "LEXER.l"
+#line 246 "LEXER.l"
 { wordCounter++; return PRINTENV;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 203 "LEXER.l"
+#line 247 "LEXER.l"
 { wordCounter++; return UNSETENV;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 204 "LEXER.l"
+#line 248 "LEXER.l"
 { wordCounter++; return UNALIAS;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 205 "LEXER.l"
+#line 249 "LEXER.l"
 { wordCounter++; return CD;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 206 "LEXER.l"
+#line 250 "LEXER.l"
 { wordCounter++; return ALIAS; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 207 "LEXER.l"
+#line 251 "LEXER.l"
 {wordCounter++;  return STDERR;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 208 "LEXER.l"
+#line 252 "LEXER.l"
 {wordCounter++; return IOIN;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 209 "LEXER.l"
+#line 253 "LEXER.l"
 {wordCounter++; return IOUT;}
 	YY_BREAK
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 210 "LEXER.l"
+#line 254 "LEXER.l"
 { wordCounter = 0; return END; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 211 "LEXER.l"
+#line 255 "LEXER.l"
 {wordCounter++; return BACKGRND;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 212 "LEXER.l"
+#line 256 "LEXER.l"
 { BEGIN(string_condition); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 217 "LEXER.l"
+#line 261 "LEXER.l"
 {
                         wordCounter++;
 
@@ -1091,10 +1135,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 250 "LEXER.l"
+#line 294 "LEXER.l"
 ECHO;
 	YY_BREAK
-#line 1098 "lex.yy.c"
+#line 1142 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string_condition):
 case YY_STATE_EOF(variable_expansion):
@@ -2101,5 +2145,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 250 "LEXER.l"
+#line 294 "LEXER.l"
 

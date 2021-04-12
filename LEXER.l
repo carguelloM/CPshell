@@ -2,6 +2,7 @@
 #include "PARSER.tab.h"
 #include <string.h>
 #include <dirent.h> 
+#include <regex.h> 
 
 #include "global.h"
 
@@ -99,6 +100,18 @@ void expandVars(char* word, char* newWord){
     }
 }
 
+bool regexMatch(int returnValue){
+  if (returnValue == 0){
+    return true;
+  }
+  else if (returnValue == REG_NOMATCH){
+    return false;
+  }
+  else{
+    printf("An error occured.\n");
+    return false;
+  }
+}
 
 
 void expandWildcards(char* word, char* newWord) 
@@ -113,12 +126,8 @@ void expandWildcards(char* word, char* newWord)
         ///// CONSTRUCT REGEX /////
         char *regexStr = (char *)calloc(1, 40000);
         char* curr = &word[0];
-        char* start = NULL;
-        char* end = NULL;
         int pos = 0;
-        int length = 0;
-        bool varMatch = false;
-        bool betweenBraces = false;
+
 
         regexStr[0] = '^';
         while (*curr != '\0')
@@ -145,18 +154,53 @@ void expandWildcards(char* word, char* newWord)
         regexStr = strcat(regexStr, "$");
 
         printf("--  %s  -- ", regexStr);
+        
+        //// COMPILING REGEX //////
+        regex_t regex;
+        int returnValue = regcomp(&regex,regexStr,0);
+
         ///////////////////////////
+        int numFiles = 0;
+        int maxLength = 0;
+
+
+        // Copying to the table
+        int fileIndex = 0;
+
         DIR *d;
         struct dirent *dir;
         d = opendir(".");
         if (d) {
             while ((dir = readdir(d)) != NULL) {
-                printf("%s\n", dir->d_name);
+                returnValue = regexec(&regex, dir->d_name, 0, NULL, 0);
+                if (regexMatch(returnValue)) 
+                {
+                    strcpy(filesTable[fileIndex], dir->d_name);
+                    fileIndex++;
+
+                    if (strlen(dir->d_name) > maxLength)
+                    {
+                        maxLength = strlen(dir->d_name);
+                    }
+                }
             }
         closedir(d);
         }
 
+        // Sorting 
+        qsort(filesTable, fileIndex, maxLength+1, strcmp);
 
+
+        for (int i = 0; i < fileIndex; i++)
+        {
+            printf("%s ", filesTable[i]);
+        }
+
+        // Cleaning the table
+        for (int i = 0; i < fileIndex; i++)
+        {
+            strcpy(filesTable[i], "");
+        }
     }
 }
 

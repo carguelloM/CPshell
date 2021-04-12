@@ -1,6 +1,9 @@
 #include "stdbool.h"
 #include <limits.h>
 
+#define MAX_FILES 400
+#define MAX_FILE_NAME 100
+
 struct evTable {
    char var[128][100];
    char word[128][100];
@@ -32,6 +35,8 @@ struct aTable aliasTable;
 struct commandTable cmdTable;
 
 int aliasIndex, varIndex, cmdTableIndex;
+
+char filesTable[MAX_FILES][MAX_FILE_NAME]; 
 
 //State Variables
 char searchPath[100];
