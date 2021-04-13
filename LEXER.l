@@ -116,24 +116,76 @@ bool regexMatch(int returnValue){
 
 void expandTilde(char* word, char* newWord)
 {
-    int length = strlen(word);
+    
+    int totLength = strlen(word);
 
-    char* start = &word[1];
-    char *end = &word[length-1];
-	char *substr = (char *)calloc(1, end - start + 2);
-  	memcpy(substr, start, end - start + 1);
+    bool slashPresent = false;
+    int length = 0;
 
-    char* pwName = (char *)calloc(1, 400000);
-    //passwd* PASSWORD = getpwnam(substr);
+    char* start = NULL;
+    char* end = NULL;
+    char* substr = NULL;
 
-    printf("   --   %s     --- ", substr);
-    pwName = getpwnam(substr)->pw_dir;
+    char* pwDir = (char *)calloc(1, 4000);
 
-    //struct passwd* PASSWORD = getpwnam(substr);
-    //pwName = PASSWORD->pw_dir;
+    char* curr = &word[1];
+    while (*curr != '/' && *curr != '\0')
+    {
+        curr++;
+        length++;
+    }
 
-    printf("*****   %s ******", pwName);
+    if (*curr == '/')
+    {
+        slashPresent = true;
+        //slashPos = curr;
+    }
+
+    if (length == 0)
+    {
+        //use HOME
+        strcpy(pwDir, varTable.word[1]);
+    }
+    else 
+    {
+        start = &word[1];
+        end = &word[length];
+        substr = (char *)calloc(1, end - start + 2);
+        memcpy(substr, start, end - start + 1);
+
+        //printf("  %s  ", substr);
+        if (getpwnam(substr) == NULL)
+        {
+            printf("Error: no such file or directory ");
+        }
+        else 
+        {
+            strcpy(pwDir, getpwnam(substr)->pw_dir);
+        }
+
+    }
+
+
+    strcpy(newWord, pwDir);
+
+    if (slashPresent)
+    {
+        start = &word[length+2];
+    }
+    else 
+    {
+        start = &word[length+1];
+    }
+    end = &word[totLength];
+
+    substr = (char *)calloc(1, end - start + 2);
+    memcpy(substr, start, end - start + 1);
+
+    strcat(newWord, substr);
+
 }
+
+
 
 void expandWildcards(char* word, char* newWord) 
 {
@@ -282,17 +334,25 @@ alias		        { wordCounter++; return ALIAS; }
 
 
 
-(\<|\~)(($\{{CHAR}+\})|{CHAR}+)+              {
+(($\{{CHAR}+\})|{CHAR}+)+              {
                         wordCounter++;
+
+                        //TILDE EXPANSION
+                        char *newWordTilde = (char *)calloc(1, 4000);
 
                         if (yytext[0] == '~')
                         {
-                            printf("GOT Here" );
-                            char *newWordTilde = (char *)calloc(1, 40000);
                             expandTilde(yytext, newWordTilde);
-                        }                        
+                            //strcpy(newWordTilde, yytext);
+                        }
+                        else 
+                        {
+                            strcpy(newWordTilde, yytext);
+                        }
+
                         char *middleWord = (char *)calloc(1, 4000);
-                        expandVars(yytext, middleWord);
+                        expandVars(newWordTilde, middleWord);
+                        //expandVars(yytext, middleWord);
 
                         //WILDCARD
                         char *newWord = (char *)calloc(1, 4000);
