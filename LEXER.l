@@ -3,6 +3,7 @@
 #include <string.h>
 #include <dirent.h> 
 #include <regex.h> 
+#include <pwd.h>
 
 #include "global.h"
 
@@ -113,6 +114,78 @@ bool regexMatch(int returnValue){
   }
 }
 
+void expandTilde(char* word, char* newWord)
+{
+    
+    int totLength = strlen(word);
+
+    bool slashPresent = false;
+    int length = 0;
+
+    char* start = NULL;
+    char* end = NULL;
+    char* substr = NULL;
+
+    char* pwDir = (char *)calloc(1, 4000);
+
+    char* curr = &word[1];
+    while (*curr != '/' && *curr != '\0')
+    {
+        curr++;
+        length++;
+    }
+
+    if (*curr == '/')
+    {
+        slashPresent = true;
+        //slashPos = curr;
+    }
+
+    if (length == 0)
+    {
+        //use HOME
+        strcpy(pwDir, varTable.word[1]);
+    }
+    else 
+    {
+        start = &word[1];
+        end = &word[length];
+        substr = (char *)calloc(1, end - start + 2);
+        memcpy(substr, start, end - start + 1);
+
+        //printf("  %s  ", substr);
+        if (getpwnam(substr) == NULL)
+        {
+            printf("Error: no such file or directory ");
+        }
+        else 
+        {
+            strcpy(pwDir, getpwnam(substr)->pw_dir);
+        }
+
+    }
+
+
+    strcpy(newWord, pwDir);
+
+    if (slashPresent)
+    {
+        start = &word[length+2];
+    }
+    else 
+    {
+        start = &word[length+1];
+    }
+    end = &word[totLength];
+
+    substr = (char *)calloc(1, end - start + 2);
+    memcpy(substr, start, end - start + 1);
+
+    strcat(newWord, substr);
+
+}
+
+
 
 void expandWildcards(char* word, char* newWord) 
 {
@@ -221,6 +294,7 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 <string_condition>(($\{{ANYCHAR}+\})|{ANYCHAR}+)+   { 
                                     wordCounter++;
 
+
                                     char *newWord = (char *)calloc(1, 40000);
                                     expandVars(yytext, newWord);
 
@@ -263,8 +337,22 @@ alias		        { wordCounter++; return ALIAS; }
 (($\{{CHAR}+\})|{CHAR}+)+              {
                         wordCounter++;
 
+                        //TILDE EXPANSION
+                        char *newWordTilde = (char *)calloc(1, 4000);
+
+                        if (yytext[0] == '~')
+                        {
+                            expandTilde(yytext, newWordTilde);
+                            //strcpy(newWordTilde, yytext);
+                        }
+                        else 
+                        {
+                            strcpy(newWordTilde, yytext);
+                        }
+
                         char *middleWord = (char *)calloc(1, 4000);
-                        expandVars(yytext, middleWord);
+                        expandVars(newWordTilde, middleWord);
+                        //expandVars(yytext, middleWord);
 
                         //WILDCARD
                         char *newWord = (char *)calloc(1, 4000);
