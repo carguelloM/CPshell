@@ -240,7 +240,7 @@ int main()
     while(1)
     {
        
-		printf("[%s]$ ", varTable.word[2]);
+		printf("%s [%s]$ ", varTable.word[0], varTable.word[2]);
         yyparse();
         //printf("LOOK: %s\n", cmdTable.errRedirectFile[cmdTableIndex-1]);
         if(termianlErr)
