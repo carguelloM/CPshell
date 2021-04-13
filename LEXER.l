@@ -116,7 +116,6 @@ bool regexMatch(int returnValue){
 
 void expandTilde(char* word, char* newWord)
 {
-    
     int totLength = strlen(word);
 
     bool slashPresent = false;
@@ -133,12 +132,6 @@ void expandTilde(char* word, char* newWord)
     {
         curr++;
         length++;
-    }
-
-    if (*curr == '/')
-    {
-        slashPresent = true;
-        //slashPos = curr;
     }
 
     if (length == 0)
@@ -165,17 +158,9 @@ void expandTilde(char* word, char* newWord)
 
     }
 
-
     strcpy(newWord, pwDir);
 
-    if (slashPresent)
-    {
-        start = &word[length+1];
-    }
-    else 
-    {
-        start = &word[length+1];
-    }
+    start = &word[length+1];
     end = &word[totLength];
 
     substr = (char *)calloc(1, end - start + 2);

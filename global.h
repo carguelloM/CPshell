@@ -40,13 +40,6 @@ int aliasIndex, varIndex, cmdTableIndex;
 
 char filesTable[MAX_FILES][MAX_FILE_NAME]; 
 
-
-//struct passwd pwrd;
-
-//const char* dellName = "~piotr";
-//struct passwd* PASSWORD;
-//PASSWORD = getpwnam(dellName);
-
 //State Variables
 char searchPath[100];
 int wordCounter;
