@@ -685,7 +685,7 @@ void expandTilde(char* word, char* newWord)
 
     if (slashPresent)
     {
-        start = &word[length+2];
+        start = &word[length+1];
     }
     else 
     {
