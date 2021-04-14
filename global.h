@@ -54,5 +54,6 @@ bool pipePresent;
 bool IOPresent;
 int pipeLead[2];
 int pipeSec[2];
+bool backgroundProc;
 char* subAliases(char* name);
 

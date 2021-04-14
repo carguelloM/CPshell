@@ -6,6 +6,7 @@
 #include "global.h"
 
 int ersex(void);
+int yylex(void);
 int yyerror(char *s);
 int runCD(char* arg);
 int runCDHome(void);
@@ -24,7 +25,7 @@ int unsetAlias(char* name);
 %union {char *string;}
 
 %start cmd_line
-%type<string> nonBuilt redirection err pipes
+%type<string> nonBuilt redirection err pipes back
 %token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS IOIN IOUT BACKGRND STDERR PIPE
 
 %%
@@ -41,14 +42,14 @@ cmd_line    :
 	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
     | ALIAS END                     { listAlias(); return 1;}
 	| ALIAS IOUT STRING END			{printAliasFile($3,0); return 1;}
-	| ALIAS IOUT IOUT STRING END		{printAliasFile($4,1); return 1;}
+	| ALIAS IOUT IOUT STRING END	{printAliasFile($4,1); return 1;}
 	| nonBuilt redirection  END		{return 1;}
-	| nonBuilt err END				{
+	| nonBuilt err back END			{
 									strcpy(cmdTable.inputFile,"");
 									strcpy(cmdTable.outputFile,"");
 									cmdTable.append = false;
 									 return 1;}	
-	|	pipes err END					{
+	|	pipes err END				{
 									strcpy(cmdTable.inputFile,"");
 									strcpy(cmdTable.outputFile,"");
 									cmdTable.append = false;
@@ -89,7 +90,8 @@ nonBuilt:
 												cmdTableIndex++;
 												}
 	| nonBuilt STRING							{
-												strcpy(cmdTable.arguments[cmdTableIndex-1].argu[argumentCounter], $2);
+												int currArguNum = cmdTable.arguments[cmdTableIndex-1].argumentNum;
+												strcpy(cmdTable.arguments[cmdTableIndex-1].argu[currArguNum], $2);
 												cmdTable.arguments[cmdTableIndex-1].argumentNum++;
 												}	
 
@@ -112,6 +114,10 @@ err:
 pipes:
 	nonBuilt PIPE nonBuilt							{numPipes++;}
 	| pipes PIPE nonBuilt							{numPipes++;}
+;
+back:
+													
+	| BACKGRND										{backgroundProc = true;}
 	
 %%
 
