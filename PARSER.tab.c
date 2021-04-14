@@ -108,6 +108,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include "global.h"
 
 int ersex(void);
@@ -147,10 +148,10 @@ int unsetAlias(char* name);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 25 "PARSER.y"
+#line 26 "PARSER.y"
 {char *string;}
 /* Line 193 of yacc.c.  */
-#line 154 "PARSER.tab.c"
+#line 155 "PARSER.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -163,7 +164,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 167 "PARSER.tab.c"
+#line 168 "PARSER.tab.c"
 
 #ifdef short
 # undef short
@@ -378,7 +379,7 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  23
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   77
+#define YYLAST   78
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  17
@@ -387,7 +388,7 @@ union yyalloc
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  32
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  75
+#define YYNSTATES  78
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -435,9 +436,9 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     6,    11,    14,    19,    25,    29,    33,
-      37,    40,    45,    48,    53,    59,    63,    68,    72,    76,
-      80,    84,    89,    95,   102,   104,   107,   108,   111,   115,
-     119,   123,   124
+      37,    40,    45,    48,    53,    59,    64,    69,    74,    79,
+      83,    87,    92,    98,   105,   107,   110,   111,   114,   118,
+     122,   126,   127
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -449,22 +450,22 @@ static const yytype_int8 yyrhs[] =
        5,     7,    -1,     4,     5,     7,    -1,     4,     7,    -1,
        6,     5,     5,     7,    -1,     6,     7,    -1,     6,    13,
        5,     7,    -1,     6,    13,    13,     5,     7,    -1,    20,
-      19,     7,    -1,    20,    21,    23,     7,    -1,    22,    21,
-       7,    -1,    22,    19,     7,    -1,    12,     5,    21,    -1,
-      13,     5,    21,    -1,    13,    13,     5,    21,    -1,    12,
-       5,    13,     5,    21,    -1,    12,     5,    13,    13,     5,
-      21,    -1,     5,    -1,    20,     5,    -1,    -1,    15,     5,
-      -1,    15,    14,     5,    -1,    20,    16,    20,    -1,    22,
-      16,    20,    -1,    -1,    14,    -1
+      19,    23,     7,    -1,    20,    21,    23,     7,    -1,    22,
+      21,    23,     7,    -1,    22,    19,    23,     7,    -1,    12,
+       5,    21,    -1,    13,     5,    21,    -1,    13,    13,     5,
+      21,    -1,    12,     5,    13,     5,    21,    -1,    12,     5,
+      13,    13,     5,    21,    -1,     5,    -1,    20,     5,    -1,
+      -1,    15,     5,    -1,    15,    14,     5,    -1,    20,    16,
+      20,    -1,    22,    16,    20,    -1,    -1,    14,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    33,    33,    34,    35,    36,    37,    38,    39,    40,
-      41,    42,    43,    44,    45,    46,    47,    52,    57,    61,
-      65,    69,    74,    78,    85,    92,    99,   102,   103,   115,
-     116,   118,   120
+       0,    34,    34,    35,    36,    37,    38,    39,    40,    41,
+      42,    43,    44,    45,    46,    47,    48,    53,    58,    62,
+      66,    70,    75,    79,    86,    93,   100,   103,   104,   116,
+     117,   119,   121
 };
 #endif
 
@@ -503,7 +504,7 @@ static const yytype_uint8 yyr1[] =
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     4,     2,     4,     5,     3,     3,     3,
-       2,     4,     2,     4,     5,     3,     4,     3,     3,     3,
+       2,     4,     2,     4,     5,     4,     4,     4,     4,     3,
        3,     4,     5,     6,     1,     2,     0,     2,     3,     3,
        3,     0,     1
 };
@@ -515,39 +516,39 @@ static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,    24,     0,     0,     0,     0,     0,     0,
       26,    26,     2,     0,    10,     0,    12,     0,     0,     4,
-       0,     0,     0,     1,    25,     0,     0,     0,     0,     0,
-      31,     0,     0,     0,     9,     0,     0,     0,     0,     0,
-       0,     7,     8,    26,    26,     0,    27,     0,    29,    15,
-      32,     0,    30,    18,    17,    11,    13,     0,     3,     5,
-       0,     0,    19,    20,    26,    28,    16,    14,     6,    26,
-       0,    21,    22,    26,    23
+       0,     0,     0,     1,    25,     0,     0,     0,     0,    31,
+      31,     0,    31,    31,     9,     0,     0,     0,     0,     0,
+       0,     7,     8,    26,    26,     0,    27,     0,    29,    32,
+       0,     0,    30,     0,     0,    11,    13,     0,     3,     5,
+       0,     0,    19,    20,    26,    28,    15,    16,    18,    17,
+      14,     6,    26,     0,    21,    22,    26,    23
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     9,    29,    10,    30,    11,    51
+      -1,     9,    29,    10,    30,    11,    50
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -26
+#define YYPACT_NINF -28
 static const yytype_int8 yypact[] =
 {
-      11,    27,     0,   -26,    18,    24,    17,    34,    38,    45,
-      -4,    25,   -26,    39,   -26,    42,   -26,    -3,    43,   -26,
-      13,    44,    47,   -26,   -26,    50,    22,    -1,    51,    52,
-      35,    51,    53,    54,   -26,    56,    57,    60,    59,    61,
-      62,   -26,   -26,    29,    37,    64,   -26,    65,    66,   -26,
-     -26,    67,    66,   -26,   -26,   -26,   -26,    68,   -26,   -26,
-      69,    23,   -26,   -26,    37,   -26,   -26,   -26,   -26,    37,
-      72,   -26,   -26,    37,   -26
+      11,     0,    39,   -28,    18,    24,    17,    29,    38,    48,
+      -4,    25,   -28,    32,   -28,    45,   -28,    -3,    46,   -28,
+      13,    47,    49,   -28,   -28,    50,    22,    -1,    52,    44,
+      44,    52,    44,    44,   -28,    53,    55,    54,    56,    57,
+      61,   -28,   -28,    34,    37,    62,   -28,    63,    64,   -28,
+      65,    66,    64,    67,    68,   -28,   -28,    69,   -28,   -28,
+      70,    23,   -28,   -28,    37,   -28,   -28,   -28,   -28,   -28,
+     -28,   -28,    37,    73,   -28,   -28,    37,   -28
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -26,   -26,    46,   -25,   -11,   -26,   -26
+     -28,   -28,    59,    14,   -11,   -28,   -27
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -557,26 +558,26 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      33,    24,    36,    48,    46,    13,    52,    14,    25,    26,
+      33,    24,    36,    51,    46,    53,    54,    12,    25,    26,
       37,    27,    28,    47,     1,     2,     3,     4,    39,     5,
-       6,     7,     8,    15,    19,    16,    40,    44,    69,    18,
-      20,    17,    62,    63,    12,    45,    70,    25,    26,    21,
-      27,    31,    61,    22,    27,    23,    34,    35,    38,    50,
-       0,    41,    27,    71,    42,    43,     3,    32,    72,    49,
-      53,    54,    74,    55,    56,    57,    58,    60,    59,    64,
-      65,    24,     0,     0,    66,    67,    68,    73
+       6,     7,     8,    15,    19,    16,    40,    44,    72,    18,
+      20,    17,    62,    63,    21,    45,    73,    25,    26,    34,
+      27,    31,    48,    22,    13,    52,    14,    61,    23,    27,
+      35,    38,    27,    74,    41,    43,    42,     3,    49,    57,
+      55,    75,    56,    58,    59,    77,    60,    64,    65,    24,
+      32,     0,    66,    67,    68,    69,    70,    71,    76
 };
 
 static const yytype_int8 yycheck[] =
 {
-      11,     5,     5,    28,     5,     5,    31,     7,    12,    13,
+      11,     5,     5,    30,     5,    32,    33,     7,    12,    13,
       13,    15,    16,    14,     3,     4,     5,     6,     5,     8,
        9,    10,    11,     5,     7,     7,    13,     5,     5,     5,
-      13,    13,    43,    44,     7,    13,    13,    12,    13,     5,
-      15,    16,    13,     5,    15,     0,     7,     5,     5,    14,
-      -1,     7,    15,    64,     7,     5,     5,    11,    69,     7,
-       7,     7,    73,     7,     7,     5,     7,     5,     7,     5,
-       5,     5,    -1,    -1,     7,     7,     7,     5
+      13,    13,    43,    44,     5,    13,    13,    12,    13,     7,
+      15,    16,    28,     5,     5,    31,     7,    13,     0,    15,
+       5,     5,    15,    64,     7,     5,     7,     5,    14,     5,
+       7,    72,     7,     7,     7,    76,     5,     5,     5,     5,
+      11,    -1,     7,     7,     7,     7,     7,     7,     5
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -587,10 +588,10 @@ static const yytype_uint8 yystos[] =
       20,    22,     7,     5,     7,     5,     7,    13,     5,     7,
       13,     5,     5,     0,     5,    12,    13,    15,    16,    19,
       21,    16,    19,    21,     7,     5,     5,    13,     5,     5,
-      13,     7,     7,     5,     5,    13,     5,    14,    20,     7,
-      14,    23,    20,     7,     7,     7,     7,     5,     7,     7,
-       5,    13,    21,    21,     5,     5,     7,     7,     7,     5,
-      13,    21,    21,     5,    21
+      13,     7,     7,     5,     5,    13,     5,    14,    20,    14,
+      23,    23,    20,    23,    23,     7,     7,     5,     7,     7,
+       5,    13,    21,    21,     5,     5,     7,     7,     7,     7,
+       7,     7,     5,    13,    21,    21,     5,    21
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1405,77 +1406,77 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 33 "PARSER.y"
+#line 34 "PARSER.y"
     {exit(1); return 1; ;}
     break;
 
   case 3:
-#line 34 "PARSER.y"
+#line 35 "PARSER.y"
     {setEnv((yyvsp[(2) - (4)].string), (yyvsp[(3) - (4)].string));  return 1;;}
     break;
 
   case 4:
-#line 35 "PARSER.y"
+#line 36 "PARSER.y"
     {printEnv();  return 1;;}
     break;
 
   case 5:
-#line 36 "PARSER.y"
+#line 37 "PARSER.y"
     {printEnvFile((yyvsp[(3) - (4)].string), 0); return 1;;}
     break;
 
   case 6:
-#line 37 "PARSER.y"
+#line 38 "PARSER.y"
     {printEnvFile((yyvsp[(4) - (5)].string), 1); return 1;;}
     break;
 
   case 7:
-#line 38 "PARSER.y"
+#line 39 "PARSER.y"
     {unsetEnv((yyvsp[(2) - (3)].string));  return 1;;}
     break;
 
   case 8:
-#line 39 "PARSER.y"
+#line 40 "PARSER.y"
     {unsetAlias((yyvsp[(2) - (3)].string));  return 1;;}
     break;
 
   case 9:
-#line 40 "PARSER.y"
+#line 41 "PARSER.y"
     {runCD((yyvsp[(2) - (3)].string));  return 1;;}
     break;
 
   case 10:
-#line 41 "PARSER.y"
+#line 42 "PARSER.y"
     { runCDHome();  return 1;;}
     break;
 
   case 11:
-#line 42 "PARSER.y"
+#line 43 "PARSER.y"
     {runSetAlias((yyvsp[(2) - (4)].string), (yyvsp[(3) - (4)].string));  return 1;;}
     break;
 
   case 12:
-#line 43 "PARSER.y"
+#line 44 "PARSER.y"
     { listAlias(); return 1;;}
     break;
 
   case 13:
-#line 44 "PARSER.y"
+#line 45 "PARSER.y"
     {printAliasFile((yyvsp[(3) - (4)].string),0); return 1;;}
     break;
 
   case 14:
-#line 45 "PARSER.y"
+#line 46 "PARSER.y"
     {printAliasFile((yyvsp[(4) - (5)].string),1); return 1;;}
     break;
 
   case 15:
-#line 46 "PARSER.y"
+#line 47 "PARSER.y"
     {return 1;;}
     break;
 
   case 16:
-#line 47 "PARSER.y"
+#line 48 "PARSER.y"
     {
 									strcpy(cmdTable.inputFile,"");
 									strcpy(cmdTable.outputFile,"");
@@ -1484,7 +1485,7 @@ yyreduce:
     break;
 
   case 17:
-#line 52 "PARSER.y"
+#line 53 "PARSER.y"
     {
 									strcpy(cmdTable.inputFile,"");
 									strcpy(cmdTable.outputFile,"");
@@ -1493,13 +1494,13 @@ yyreduce:
     break;
 
   case 18:
-#line 57 "PARSER.y"
+#line 58 "PARSER.y"
     { pipePresent = true; return 1;
 										return 1;;}
     break;
 
   case 19:
-#line 61 "PARSER.y"
+#line 62 "PARSER.y"
     {strcpy(cmdTable.inputFile,(yyvsp[(2) - (3)].string));
 												strcpy(cmdTable.outputFile,"");
 												cmdTable.append = false;
@@ -1507,7 +1508,7 @@ yyreduce:
     break;
 
   case 20:
-#line 65 "PARSER.y"
+#line 66 "PARSER.y"
     {strcpy(cmdTable.inputFile,"");
 												strcpy(cmdTable.outputFile,(yyvsp[(2) - (3)].string));
 												cmdTable.append = false;
@@ -1515,7 +1516,7 @@ yyreduce:
     break;
 
   case 21:
-#line 69 "PARSER.y"
+#line 70 "PARSER.y"
     {
 												strcpy(cmdTable.inputFile,"");
 												strcpy(cmdTable.outputFile,(yyvsp[(3) - (4)].string));
@@ -1524,7 +1525,7 @@ yyreduce:
     break;
 
   case 22:
-#line 74 "PARSER.y"
+#line 75 "PARSER.y"
     {strcpy(cmdTable.inputFile,(yyvsp[(2) - (5)].string));
 												strcpy(cmdTable.outputFile,(yyvsp[(4) - (5)].string));
 												cmdTable.append = false;
@@ -1532,7 +1533,7 @@ yyreduce:
     break;
 
   case 23:
-#line 78 "PARSER.y"
+#line 79 "PARSER.y"
     {strcpy(cmdTable.inputFile,(yyvsp[(2) - (6)].string));
 												strcpy(cmdTable.outputFile,(yyvsp[(5) - (6)].string));
 												cmdTable.append = true;
@@ -1540,7 +1541,7 @@ yyreduce:
     break;
 
   case 24:
-#line 85 "PARSER.y"
+#line 86 "PARSER.y"
     {
 												strcpy(cmdTable.cmd[cmdTableIndex],(yyvsp[(1) - (1)].string));
 												cmdTable.arguments[cmdTableIndex].argumentNum = 0;
@@ -1551,7 +1552,7 @@ yyreduce:
     break;
 
   case 25:
-#line 92 "PARSER.y"
+#line 93 "PARSER.y"
     {
 												int currArguNum = cmdTable.arguments[cmdTableIndex-1].argumentNum;
 												strcpy(cmdTable.arguments[cmdTableIndex-1].argu[currArguNum], (yyvsp[(2) - (2)].string));
@@ -1560,19 +1561,19 @@ yyreduce:
     break;
 
   case 26:
-#line 99 "PARSER.y"
+#line 100 "PARSER.y"
     {
 														strcpy(cmdTable.errRedirectFile, "");
 													;}
     break;
 
   case 27:
-#line 102 "PARSER.y"
+#line 103 "PARSER.y"
     {strcpy(cmdTable.errRedirectFile, (yyvsp[(2) - (2)].string));;}
     break;
 
   case 28:
-#line 103 "PARSER.y"
+#line 104 "PARSER.y"
     {	
 													if(strcmp((yyvsp[(3) - (3)].string),"1") == 0){
 														strcpy(cmdTable.errRedirectFile, "STDOUT_FILENO");
@@ -1585,23 +1586,23 @@ yyreduce:
     break;
 
   case 29:
-#line 115 "PARSER.y"
-    {numPipes++;;}
-    break;
-
-  case 30:
 #line 116 "PARSER.y"
     {numPipes++;;}
     break;
 
+  case 30:
+#line 117 "PARSER.y"
+    {numPipes++;;}
+    break;
+
   case 32:
-#line 120 "PARSER.y"
+#line 121 "PARSER.y"
     {backgroundProc = true;;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1605 "PARSER.tab.c"
+#line 1606 "PARSER.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1815,7 +1816,7 @@ yyreturn:
 }
 
 
-#line 122 "PARSER.y"
+#line 123 "PARSER.y"
 
 
 int yyerror(char *s) {
@@ -2023,6 +2024,15 @@ int runCDHome(void) {
 	}
 }
 
+// Source for chopN: https://stackoverflow.com/questions/4761764/how-to-remove-first-three-characters-from-string-with-c
+	void chopN(char *str, size_t n){
+    assert(n != 0 && str != 0);
+    size_t len = strlen(str);
+    if (n > len)
+        return;  // Or: n = len;
+    memmove(str, str+n, len - n + 1);
+}
+
 int runCD(char* arg) {
 	if (strcmp(arg, ".") == 0) { // special case - cd .
 		return 1;
@@ -2030,6 +2040,8 @@ int runCD(char* arg) {
 	if (strcmp(arg, "..") == 0) { // special case - cd ..
 		int slashPos = findLastSlash(varTable.word[0]);
 		if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+			chdir("/");
+			strcpy(varTable.word[0], "/");
 			return 1;
 		}
 		else {
@@ -2047,8 +2059,85 @@ int runCD(char* arg) {
 		}
 	}
 	else if (arg[0] != '/') { // arg is relative path
-		strcat(varTable.word[0], "/");
-		strcat(varTable.word[0], arg);
+		char destination[100];
+		
+		if(arg[0] == '.' && arg[1] != '.') 
+		{
+			chopN(arg, 2);
+			strcpy(destination, varTable.word[0]);
+			strcat(destination, "/");
+			strcat(destination, arg);
+		}
+
+		else if(arg[0] == '.' && arg[1] == '.')
+		{	
+			chopN(arg, 3);
+			int slashPos = findLastSlash(varTable.word[0]);
+			if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+			chdir("/");
+			strcpy(varTable.word[0], "/");
+			return 1;
+			}
+			else {
+				char *start = &varTable.word[0][0];
+				char *end = &varTable.word[0][slashPos];
+				char *substr = (char *)calloc(1, end - start + 1);
+				memcpy(substr, start, end - start);
+				strcpy(destination, substr);
+				strcat(destination, "/");
+				strcat(destination, arg);
+			}
+		}
+		else{
+				strcpy(destination, varTable.word[0]);
+				strcat(destination, "/");
+				strcat(destination, arg);
+		}
+
+		char COPY_ARG[100];
+		strcpy(COPY_ARG, destination);
+		strcpy(destination, "");
+		char* disect = strtok(COPY_ARG, "/");
+
+		while(disect != NULL)
+		{
+			//printf("DISET = %s\n", disect);
+			if(strcmp(disect, ".") == 0)
+			{
+				// Just ignore it should be current working directory
+			}
+			else if(strcmp(disect, "..") == 0)
+				{
+					int slashPos = findLastSlash(destination);
+					if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+					chdir("/");
+					strcpy(varTable.word[0], "/");
+					return 1;
+					}
+
+					else {
+					char *start = &destination[0];
+					char *end = &destination[slashPos];
+					char *substr = (char *)calloc(1, end - start + 1);
+					memcpy(substr, start, end - start);
+					strcat(destination, "/");
+					strcpy(destination, substr);
+				}
+			}
+			else
+			{	
+				strcat(destination, "/");
+				strcat(destination, disect);
+			}
+		disect = strtok(NULL, "/");	
+		}
+
+		//printf("FINAL DESTINATION = %s", destination);
+
+		//strcat(varTable.word[0], "/");
+		//strcat(varTable.word[0], arg);
+		
+		strcpy(varTable.word[0], destination);
 
 		if(chdir(varTable.word[0]) == 0) {
 			return 1;
@@ -2061,8 +2150,49 @@ int runCD(char* arg) {
 		}
 	}
 	else { // arg is absolute path
-		if(chdir(arg) == 0){
-			strcpy(varTable.word[0], arg);
+		
+		char destination[200];
+		strcpy(destination, "");
+		chopN(arg, 1); // Take out first slash
+
+		char COPY_ARG[100];
+		strcpy(COPY_ARG, arg);
+		char* disect = strtok(COPY_ARG, "/");
+
+		while(disect != NULL)
+		{
+			if(strcmp(disect, ".") == 0)
+			{
+				// Just ignore it should be current working directory
+			}
+			else if(strcmp(disect, "..") == 0)
+				{
+					int slashPos = findLastSlash(destination);
+					if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+					chdir("/");
+					strcpy(varTable.word[0], "/");
+					return 1;
+					}
+
+					else {
+					char *start = &destination[0];
+					char *end = &destination[slashPos];
+					char *substr = (char *)calloc(1, end - start + 1);
+					memcpy(substr, start, end - start);
+					strcat(destination, "/");
+					strcpy(destination, substr);
+				}
+			}
+			else
+			{	
+				strcat(destination, "/");
+				strcat(destination, disect);
+			}
+		disect = strtok(NULL, "/");	
+		}
+		
+		if(chdir(destination) == 0){
+			strcpy(varTable.word[0], destination);
 			return 1;
 		}
 		else {
