@@ -356,6 +356,11 @@ int shellRefresh(void)
     return 1;
 }
 
+int processLine(void)
+{
+    
+}
+
 int main()
 {   int init = shellInit();
     int refresh;
@@ -407,7 +412,6 @@ int main()
             runNonBuiltIn(runCMD, numargs, currentCommand);
             currentCommand++;
         }
-
          
     }
 

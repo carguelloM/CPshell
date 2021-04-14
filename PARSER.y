@@ -6,6 +6,7 @@
 #include "global.h"
 
 int ersex(void);
+int yylex(void);
 int yyerror(char *s);
 int runCD(char* arg);
 int runCDHome(void);
