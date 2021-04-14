@@ -1,5 +1,5 @@
 #include <stdio.h>
 int main()
 {
-printf("test executable");
+printf("test executable\n");
 }

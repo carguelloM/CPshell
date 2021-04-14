@@ -1,2 +1,12 @@
-cat: missing2.txt: No such file or directory
-Hello Word
+PWD=/Users/cesararguello/Documents/nutshell/testdir
+HOME=/Users/cesararguello/Documents/nutshell
+PROMPT=nutshell-CP
+PATH=.:/bin:/usr/bin:/usr/local/bin:./testdir
+e=c
+this=.
+lsthis=jj .
+a=b
+b=c
+lo=jj
+jj=ls -al
+rot13=tr a-zA-Z n-za-mN-ZA-M

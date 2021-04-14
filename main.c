@@ -10,6 +10,7 @@
 
 char *getcwd(char *buf, size_t size);
 int yyparse();
+void yyrestart  (FILE * input_file);
 
 bool checkExeStatus (char* commandName){
     struct stat sb0;
@@ -326,6 +327,7 @@ int shellInit(void)
     currentCommand = 0;
     pipePresent = false;
     IOPresent =  false;
+    backgroundProc = false;
 
     getcwd(cwd, sizeof(cwd));
 
@@ -352,33 +354,12 @@ int shellRefresh(void)
     numPipes = 0;
     pipePresent = false;
     IOPresent =  false;
+    backgroundProc = false;
 
     return 1;
 }
 
-int processLine(void)
-{
-    
-}
-
-int main()
-{   int init = shellInit();
-    int refresh;
-
-    system("clear");
-    while(1)
-    {
-
-        refresh = shellRefresh();
-		printf("[%s]$ ", varTable.word[0], varTable.word[2]);
-
-        yyparse();
-       
-        if(termianlErr)
-        {
-            termianlErr = false;
-            continue;
-        }
+int proccessLine(void){
 
         if((strcmp(cmdTable.inputFile,"") != 0) || (strcmp(cmdTable.outputFile, "") != 0) || (strcmp(cmdTable.errRedirectFile, "") != 0))
         {
@@ -412,7 +393,62 @@ int main()
             runNonBuiltIn(runCMD, numargs, currentCommand);
             currentCommand++;
         }
-         
+    return 1;
+}
+
+void printPrompt(void)
+{
+    printf("\x1B[34m");
+    printf("[%s]", varTable.word[2]);
+    printf("\x1B[31m");
+    printf(":%s", varTable.word[0]);
+    printf("\x1B[32m");
+    printf("$ ");
+    printf("\x1B[0m");
+}
+
+int main()
+{   int init = shellInit();
+    int refresh;
+
+    system("clear");
+    while(1)
+    {
+
+        refresh = shellRefresh();
+        printPrompt();
+       
+        yyparse();
+       
+        if(termianlErr)
+        {
+            termianlErr = false;
+            yyrestart(stdin);
+            continue;
+        }
+       
+        if(backgroundProc)
+        {
+            pid_t child = fork();
+            
+            if(child > 0)
+            { //PARENT SHELL
+                //printf("I AM THE PARENT AND ARE READY TO GO BACK\n");
+               // continue;
+               usleep(5000);
+            }
+            else // CHILD SHOULD CARRY ON WITH THE TASK
+            {
+            int line = proccessLine();
+            //printf("I AM THE CHILD DOING THE BACKGROUND STUFF \n");
+            exit(1); 
+            }    
+            
+        }
+        else{
+            int line = proccessLine();
+        }
+     
     }
 
    return 0;

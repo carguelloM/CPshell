@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include "global.h"
 
 int ersex(void);
@@ -25,7 +26,7 @@ int unsetAlias(char* name);
 %union {char *string;}
 
 %start cmd_line
-%type<string> nonBuilt redirection err pipes
+%type<string> nonBuilt redirection err pipes back
 %token <string> BYE CD STRING ALIAS END SETENV PRINTENV UNSETENV UNALIAS IOIN IOUT BACKGRND STDERR PIPE
 
 %%
@@ -42,19 +43,19 @@ cmd_line    :
 	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
     | ALIAS END                     { listAlias(); return 1;}
 	| ALIAS IOUT STRING END			{printAliasFile($3,0); return 1;}
-	| ALIAS IOUT IOUT STRING END		{printAliasFile($4,1); return 1;}
-	| nonBuilt redirection  END		{return 1;}
-	| nonBuilt err END				{
+	| ALIAS IOUT IOUT STRING END	{printAliasFile($4,1); return 1;}
+	| nonBuilt redirection  back END		{return 1;}
+	| nonBuilt err back END			{
 									strcpy(cmdTable.inputFile,"");
 									strcpy(cmdTable.outputFile,"");
 									cmdTable.append = false;
 									 return 1;}	
-	|	pipes err END					{
+	|	pipes err back END				{
 									strcpy(cmdTable.inputFile,"");
 									strcpy(cmdTable.outputFile,"");
 									cmdTable.append = false;
 									pipePresent = true; return 1;}
-	| 	pipes redirection END		{ pipePresent = true; return 1;
+	| 	pipes redirection back END		{ pipePresent = true; return 1;
 										return 1;}
 ;
 redirection:
@@ -90,7 +91,8 @@ nonBuilt:
 												cmdTableIndex++;
 												}
 	| nonBuilt STRING							{
-												strcpy(cmdTable.arguments[cmdTableIndex-1].argu[argumentCounter], $2);
+												int currArguNum = cmdTable.arguments[cmdTableIndex-1].argumentNum;
+												strcpy(cmdTable.arguments[cmdTableIndex-1].argu[currArguNum], $2);
 												cmdTable.arguments[cmdTableIndex-1].argumentNum++;
 												}	
 
@@ -113,6 +115,10 @@ err:
 pipes:
 	nonBuilt PIPE nonBuilt							{numPipes++;}
 	| pipes PIPE nonBuilt							{numPipes++;}
+;
+back:
+													
+	| BACKGRND										{backgroundProc = true;}
 	
 %%
 
@@ -321,6 +327,15 @@ int runCDHome(void) {
 	}
 }
 
+// Source for chopN: https://stackoverflow.com/questions/4761764/how-to-remove-first-three-characters-from-string-with-c
+	void chopN(char *str, size_t n){
+    assert(n != 0 && str != 0);
+    size_t len = strlen(str);
+    if (n > len)
+        return;  // Or: n = len;
+    memmove(str, str+n, len - n + 1);
+}
+
 int runCD(char* arg) {
 	if (strcmp(arg, ".") == 0) { // special case - cd .
 		return 1;
@@ -328,6 +343,8 @@ int runCD(char* arg) {
 	if (strcmp(arg, "..") == 0) { // special case - cd ..
 		int slashPos = findLastSlash(varTable.word[0]);
 		if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+			chdir("/");
+			strcpy(varTable.word[0], "/");
 			return 1;
 		}
 		else {
@@ -345,8 +362,85 @@ int runCD(char* arg) {
 		}
 	}
 	else if (arg[0] != '/') { // arg is relative path
-		strcat(varTable.word[0], "/");
-		strcat(varTable.word[0], arg);
+		char destination[100];
+		
+		if(arg[0] == '.' && arg[1] != '.') 
+		{
+			chopN(arg, 2);
+			strcpy(destination, varTable.word[0]);
+			strcat(destination, "/");
+			strcat(destination, arg);
+		}
+
+		else if(arg[0] == '.' && arg[1] == '.')
+		{	
+			chopN(arg, 3);
+			int slashPos = findLastSlash(varTable.word[0]);
+			if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+			chdir("/");
+			strcpy(varTable.word[0], "/");
+			return 1;
+			}
+			else {
+				char *start = &varTable.word[0][0];
+				char *end = &varTable.word[0][slashPos];
+				char *substr = (char *)calloc(1, end - start + 1);
+				memcpy(substr, start, end - start);
+				strcpy(destination, substr);
+				strcat(destination, "/");
+				strcat(destination, arg);
+			}
+		}
+		else{
+				strcpy(destination, varTable.word[0]);
+				strcat(destination, "/");
+				strcat(destination, arg);
+		}
+
+		char COPY_ARG[100];
+		strcpy(COPY_ARG, destination);
+		strcpy(destination, "");
+		char* disect = strtok(COPY_ARG, "/");
+
+		while(disect != NULL)
+		{
+			//printf("DISET = %s\n", disect);
+			if(strcmp(disect, ".") == 0)
+			{
+				// Just ignore it should be current working directory
+			}
+			else if(strcmp(disect, "..") == 0)
+				{
+					int slashPos = findLastSlash(destination);
+					if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+					chdir("/");
+					strcpy(varTable.word[0], "/");
+					return 1;
+					}
+
+					else {
+					char *start = &destination[0];
+					char *end = &destination[slashPos];
+					char *substr = (char *)calloc(1, end - start + 1);
+					memcpy(substr, start, end - start);
+					strcat(destination, "/");
+					strcpy(destination, substr);
+				}
+			}
+			else
+			{	
+				strcat(destination, "/");
+				strcat(destination, disect);
+			}
+		disect = strtok(NULL, "/");	
+		}
+
+		//printf("FINAL DESTINATION = %s", destination);
+
+		//strcat(varTable.word[0], "/");
+		//strcat(varTable.word[0], arg);
+		
+		strcpy(varTable.word[0], destination);
 
 		if(chdir(varTable.word[0]) == 0) {
 			return 1;
@@ -359,8 +453,49 @@ int runCD(char* arg) {
 		}
 	}
 	else { // arg is absolute path
-		if(chdir(arg) == 0){
-			strcpy(varTable.word[0], arg);
+		
+		char destination[200];
+		strcpy(destination, "");
+		chopN(arg, 1); // Take out first slash
+
+		char COPY_ARG[100];
+		strcpy(COPY_ARG, arg);
+		char* disect = strtok(COPY_ARG, "/");
+
+		while(disect != NULL)
+		{
+			if(strcmp(disect, ".") == 0)
+			{
+				// Just ignore it should be current working directory
+			}
+			else if(strcmp(disect, "..") == 0)
+				{
+					int slashPos = findLastSlash(destination);
+					if (slashPos < 1) { //if the last '/' is on position 0, then we are in root
+					chdir("/");
+					strcpy(varTable.word[0], "/");
+					return 1;
+					}
+
+					else {
+					char *start = &destination[0];
+					char *end = &destination[slashPos];
+					char *substr = (char *)calloc(1, end - start + 1);
+					memcpy(substr, start, end - start);
+					strcat(destination, "/");
+					strcpy(destination, substr);
+				}
+			}
+			else
+			{	
+				strcat(destination, "/");
+				strcat(destination, disect);
+			}
+		disect = strtok(NULL, "/");	
+		}
+		
+		if(chdir(destination) == 0){
+			strcpy(varTable.word[0], destination);
 			return 1;
 		}
 		else {
