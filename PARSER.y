@@ -90,7 +90,7 @@ nonBuilt:
 												}
 	| nonBuilt STRING							{
 												strcpy(cmdTable.arguments[cmdTableIndex-1].argu[argumentCounter], $2);
-												cmdTable.arguments[cmdTableIndex-1].argumentNum++
+												cmdTable.arguments[cmdTableIndex-1].argumentNum++;
 												}	
 
 err:		

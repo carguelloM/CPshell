@@ -17,7 +17,7 @@ bool checkExeStatus (char* commandName){
     bool abletoExe = false;
 
     // check if absolute path is given
-    printf("NAME : %s\n", commandName);
+    //printf("NAME : %s\n", commandName);
     if (stat(commandName, &sb0) == 0 && sb0.st_mode & S_IXUSR) 
 		{
             strcpy(searchPath, commandName);
