@@ -359,7 +359,6 @@ int shellRefresh(void)
     return 1;
 }
 
-
 int proccessLine(void){
 
         if((strcmp(cmdTable.inputFile,"") != 0) || (strcmp(cmdTable.outputFile, "") != 0) || (strcmp(cmdTable.errRedirectFile, "") != 0))
@@ -407,6 +406,7 @@ void printPrompt(void)
     printf("$ ");
     printf("\x1B[0m");
 }
+
 int main()
 {   int init = shellInit();
     int refresh;
