@@ -5,7 +5,7 @@
 #include <string.h>
 #include "global.h"
 
-int yylex(void);
+int ersex(void);
 int yyerror(char *s);
 int runCD(char* arg);
 int runCDHome(void);

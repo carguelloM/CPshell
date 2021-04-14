@@ -363,8 +363,10 @@ int main()
     system("clear");
     while(1)
     {
+
         refresh = shellRefresh();
-		printf("[%s]$ ", varTable.word[2]);
+		printf("[%s]$ ", varTable.word[0], varTable.word[2]);
+
         yyparse();
        
         if(termianlErr)

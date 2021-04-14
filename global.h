@@ -1,5 +1,7 @@
 #include "stdbool.h"
 #include <limits.h>
+#include <pwd.h>
+#include <sys/types.h>
 
 #define MAX_FILES 400
 #define MAX_FILE_NAME 100
