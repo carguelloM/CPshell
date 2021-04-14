@@ -250,6 +250,7 @@ unsetenv            { wordCounter++; return UNSETENV;}
 unalias             { wordCounter++; return UNALIAS;}
 cd		            { wordCounter++; return CD;}
 alias		        { wordCounter++; return ALIAS; }
+"\|"                {wordCounter++; return PIPE;}
 2"\>"               {wordCounter++;  return STDERR;}
 "\<"                 {wordCounter++; return IOIN;}
 "\>"                {wordCounter++; return IOUT;}

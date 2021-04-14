@@ -1,3 +1,4 @@
-a=b
-d=c
-apple=red
+Hello World
+Go Gators
+Lick MA
+Hello Goodbye

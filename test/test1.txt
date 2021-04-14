@@ -1,7 +1,2 @@
-PWD=/Users/cesararguello/Documents/nutshell/test
-HOME=/Users/cesararguello/Documents/nutshell
-PROMPT=nutshell-CP
-PATH=.:/bin
-a=b
-d=c
-apple=red
+cat: missing2.txt: No such file or directory
+hello world
