@@ -24,10 +24,13 @@ struct argsTable{
 struct commandTable {
    char cmd[128][100];
    struct argsTable arguments[128];
-   char inputFile[128][100];
-   char outputFile[128][100];
-   char errRedirectFile[128][120];
-   bool append[128];
+   char inputFile[100];
+   char outputFile[100];
+   bool pipeIN[128];
+   bool pipeOUT[128];
+   char errRedirectFile[128];
+   bool append;
+   
 };
 
 char cwd[PATH_MAX];
@@ -45,6 +48,11 @@ char searchPath[100];
 int wordCounter;
 int argumentCounter;
 bool termianlErr;
-
+int currentCommand;
+int numPipes;
+bool pipePresent;
+bool IOPresent;
+int pipeLead[2];
+int pipeSec[2];
 char* subAliases(char* name);
 

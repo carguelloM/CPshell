@@ -1,6 +1,2 @@
-a=b
-d=c
-apple=red
-Hello World
-GO GATORS
-GO world
+cat: le.txt: No such file or directory
+test2.txt
