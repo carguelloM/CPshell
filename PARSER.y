@@ -31,19 +31,19 @@ int unsetAlias(char* name);
 
 %%
 cmd_line    :
-	BYE END 		                {exit(1); return 1; }
-    | SETENV STRING STRING END      {setEnv($2, $3);  return 1;}
-    | PRINTENV END                  {printEnv();  return 1;}
-	| PRINTENV IOUT	STRING END		{printEnvFile($3, 0); return 1;}
-	| PRINTENV IOUT IOUT STRING END	{printEnvFile($4, 1); return 1;}					
-    | UNSETENV STRING END           {unsetEnv($2);  return 1;}
-    | UNALIAS STRING END            {unsetAlias($2);  return 1;}
-	| CD STRING END        			{runCD($2);  return 1;}
-	| CD END						{ runCDHome();  return 1;}
-	| ALIAS STRING STRING END		{runSetAlias($2, $3);  return 1;}
-    | ALIAS END                     { listAlias(); return 1;}
-	| ALIAS IOUT STRING END			{printAliasFile($3,0); return 1;}
-	| ALIAS IOUT IOUT STRING END	{printAliasFile($4,1); return 1;}
+	BYE END 		                {if(!reparsing){exit(1);} return 1; }
+    | SETENV STRING STRING END      {if(!reparsing){setEnv($2, $3);}  return 1;}
+    | PRINTENV END                  {if(!reparsing){printEnv();}  return 1;}
+	| PRINTENV IOUT	STRING END		{if(!reparsing){printEnvFile($3, 0);} return 1;}
+	| PRINTENV IOUT IOUT STRING END	{if(!reparsing){printEnvFile($4, 1);} return 1;}					
+    | UNSETENV STRING END           {if(!reparsing){unsetEnv($2);}  return 1;}
+    | UNALIAS STRING END            {if(!reparsing){unsetAlias($2);}  return 1;}
+	| CD STRING END        			{if(!reparsing){runCD($2);}  return 1;}
+	| CD END						{ if(!reparsing){runCDHome();}  return 1;}
+	| ALIAS STRING STRING END		{if(!reparsing){runSetAlias($2, $3);}  return 1;}
+    | ALIAS END                     { if(!reparsing){listAlias();} return 1;}
+	| ALIAS IOUT STRING END			{if(!reparsing){printAliasFile($3,0);} return 1;}
+	| ALIAS IOUT IOUT STRING END	{if(!reparsing){printAliasFile($4,1);} return 1;}
 	| nonBuilt redirection  back END		{return 1;}
 	| nonBuilt err back END			{
 									strcpy(cmdTable.inputFile,"");

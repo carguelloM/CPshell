@@ -1,2 +1,2 @@
-cat: le.txt: No such file or directory
-test2.txt
+This is an error
+This is a test
