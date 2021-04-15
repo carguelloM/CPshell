@@ -1,5 +1,0 @@
-alias jj "ls -al"
-setenv this .
-setenv lsthis "jj ${this}"
-${lsthis}
-bye
