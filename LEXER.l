@@ -208,7 +208,10 @@ void expandTilde(char* word, char* newWord)
 
 }
 
-
+int compare (const void * a, const void * b)
+{
+  return strcmp((char*)a, (char*)b );
+}
 
 bool expandWildcards(char* word, char* newWord) 
 {
@@ -248,20 +251,20 @@ bool expandWildcards(char* word, char* newWord)
         ///// CONSTRUCT REGEX /////
         char *regexStr = (char *)calloc(1, 4000);
         char* curr = &word[0];
-        int pos = 0;
-        
+        int pos = 1;
 
-        regexStr[0] = '^';
+        strcat(regexStr, "^");
+
         while (*curr != '\0')
         {
             if (*curr == '*') 
             {
-                strcat(regexStr, "[.:~A-Za-z0-9!\/_-]*"); //RESTRICT
+                strcat(regexStr, "[.:~A-Za-z0-9!\\/_-]*"); //RESTRICT
                 pos = strlen(regexStr);
             }
             else if (*curr == '?')
             {
-                strcat(regexStr, "[.:~A-Za-z0-9!\/_-]"); //RESTRICT
+                strcat(regexStr, "[.:~A-Za-z0-9!\\/_-]"); //RESTRICT
                 pos = strlen(regexStr);
             }
             else
@@ -317,7 +320,7 @@ bool expandWildcards(char* word, char* newWord)
 
 
         // Sorting 
-        qsort(filesTable, fileIndex, sizeof(*filesTable), strcmp);
+        qsort(filesTable, fileIndex, sizeof(*filesTable), compare);
 
         if (fileIndex == 0)
         {
@@ -359,8 +362,8 @@ bool expandWildcards(char* word, char* newWord)
 %x string_condition
 %x variable_expansion
 
-CHAR            [.:~A-Za-z0-9!\/_/*/?-][.:~A-Za-z0-9!\/_/*/?-]*
-ANYCHAR            [)(*&%$#@!+`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!+`;,\.a-zA-Z0-9'/*_=~ -]*
+CHAR            [.:~A-Za-z0-9!\\/_/*/?-][.:~A-Za-z0-9!\\/_/*/?-]*
+ANYCHAR            [)(*&%$#@!+`;,\.a-zA-Z0-9'\\/*_=~ -][)(*&%$#@!+`;,\.a-zA-Z0-9'\\/*_=~ -]*
 
 
 %%

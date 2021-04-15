@@ -397,7 +397,7 @@ static yyconst flex_int32_t yy_ec[256] =
         6,   12,   10,    6,    4,    4,    4,    4,    4,    4,
         4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
         4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
-        1,    1,    1,    1,    4,    6,   13,   14,   15,   16,
+        1,    4,    1,    1,    4,    6,   13,   14,   15,   16,
 
        17,    4,    4,    4,   18,    4,    4,   19,    4,   20,
         4,   21,    4,   22,   23,   24,   25,   26,    4,    4,
@@ -735,7 +735,10 @@ void expandTilde(char* word, char* newWord)
 
 }
 
-
+int compare (const void * a, const void * b)
+{
+  return strcmp((char*)a, (char*)b );
+}
 
 bool expandWildcards(char* word, char* newWord) 
 {
@@ -775,20 +778,20 @@ bool expandWildcards(char* word, char* newWord)
         ///// CONSTRUCT REGEX /////
         char *regexStr = (char *)calloc(1, 4000);
         char* curr = &word[0];
-        int pos = 0;
-        
+        int pos = 1;
 
-        regexStr[0] = '^';
+        strcat(regexStr, "^");
+
         while (*curr != '\0')
         {
             if (*curr == '*') 
             {
-                strcat(regexStr, "[.:~A-Za-z0-9!\/_-]*"); //RESTRICT
+                strcat(regexStr, "[.:~A-Za-z0-9!\\/_-]*"); //RESTRICT
                 pos = strlen(regexStr);
             }
             else if (*curr == '?')
             {
-                strcat(regexStr, "[.:~A-Za-z0-9!\/_-]"); //RESTRICT
+                strcat(regexStr, "[.:~A-Za-z0-9!\\/_-]"); //RESTRICT
                 pos = strlen(regexStr);
             }
             else
@@ -844,7 +847,7 @@ bool expandWildcards(char* word, char* newWord)
 
 
         // Sorting 
-        qsort(filesTable, fileIndex, sizeof(*filesTable), strcmp);
+        qsort(filesTable, fileIndex, sizeof(*filesTable), compare);
 
         if (fileIndex == 0)
         {
@@ -882,7 +885,7 @@ bool expandWildcards(char* word, char* newWord)
 
 
 
-#line 886 "lex.yy.c"
+#line 889 "lex.yy.c"
 
 #define INITIAL 0
 #define string_condition 1
@@ -1066,10 +1069,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 366 "LEXER.l"
+#line 369 "LEXER.l"
 
 
-#line 1073 "lex.yy.c"
+#line 1076 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -1154,7 +1157,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 368 "LEXER.l"
+#line 371 "LEXER.l"
 { 
                                     wordCounter++;
 
@@ -1210,88 +1213,88 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 420 "LEXER.l"
+#line 423 "LEXER.l"
 {BEGIN(INITIAL);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 425 "LEXER.l"
+#line 428 "LEXER.l"
 { }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 426 "LEXER.l"
+#line 429 "LEXER.l"
 { wordCounter++;  strcat(currLine, "bye"); strcat(currLine, " "); return BYE; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 427 "LEXER.l"
+#line 430 "LEXER.l"
 { wordCounter++; strcat(currLine, "setenv"); strcat(currLine, " "); return SETENV;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 428 "LEXER.l"
+#line 431 "LEXER.l"
 { wordCounter++; strcat(currLine, "printenv"); strcat(currLine, " "); return PRINTENV;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 429 "LEXER.l"
+#line 432 "LEXER.l"
 { wordCounter++; strcat(currLine, "unsetenv"); strcat(currLine, " "); return UNSETENV;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 430 "LEXER.l"
+#line 433 "LEXER.l"
 { wordCounter++; strcat(currLine, "unalias"); strcat(currLine, " "); return UNALIAS;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 431 "LEXER.l"
+#line 434 "LEXER.l"
 { wordCounter++; strcat(currLine, "cd"); strcat(currLine, " "); return CD;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 432 "LEXER.l"
+#line 435 "LEXER.l"
 { wordCounter++; strcat(currLine, "alias"); strcat(currLine, " ");return ALIAS; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 433 "LEXER.l"
+#line 436 "LEXER.l"
 {wordCounter++; strcat(currLine, "|"); strcat(currLine, " ");return PIPE;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 434 "LEXER.l"
+#line 437 "LEXER.l"
 {wordCounter++;  strcat(currLine, "2>"); strcat(currLine, " ");return STDERR;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 435 "LEXER.l"
+#line 438 "LEXER.l"
 {wordCounter++; strcat(currLine, "<"); strcat(currLine, " "); return IOIN;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 436 "LEXER.l"
+#line 439 "LEXER.l"
 {wordCounter++; strcat(currLine, ">"); strcat(currLine, " ");return IOUT;}
 	YY_BREAK
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 437 "LEXER.l"
+#line 440 "LEXER.l"
 { newLineReached = true; wordCounter = 0; strcat(currLine, "\n"); strcat(currLine, " "); return END; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 438 "LEXER.l"
+#line 441 "LEXER.l"
 {wordCounter++; strcat(currLine, "&"); strcat(currLine, " ");return BACKGRND;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 439 "LEXER.l"
+#line 442 "LEXER.l"
 { BEGIN(string_condition); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 444 "LEXER.l"
+#line 447 "LEXER.l"
 {
                         wordCounter++;
 
@@ -1360,10 +1363,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 512 "LEXER.l"
+#line 515 "LEXER.l"
 ECHO;
 	YY_BREAK
-#line 1367 "lex.yy.c"
+#line 1370 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string_condition):
 case YY_STATE_EOF(variable_expansion):
@@ -2362,6 +2365,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 512 "LEXER.l"
+#line 515 "LEXER.l"
 
 
