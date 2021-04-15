@@ -94,6 +94,7 @@ nonBuilt:
 												int currArguNum = cmdTable.arguments[cmdTableIndex-1].argumentNum;
 												strcpy(cmdTable.arguments[cmdTableIndex-1].argu[currArguNum], $2);
 												cmdTable.arguments[cmdTableIndex-1].argumentNum++;
+												
 												}	
 
 err:		
@@ -123,9 +124,15 @@ back:
 %%
 
 int yyerror(char *s) {
-  printf("%s\n",s);
-  termianlErr = true;
-  return 0;
+	if(reparsing == true)
+	{
+		return 1;
+	}
+	else{
+		printf("%s\n",s);
+		termianlErr = true;
+		return 0;
+	}
   }
 
 

@@ -9,8 +9,6 @@
 
 char* subAliases(char* name){
 
-    
-
     for (int i = 0; i < aliasIndex; i++) {
         if(strcmp(aliasTable.name[i], name) == 0) {
             wordCounter = 0;
@@ -74,8 +72,8 @@ bool ifVariable(char* name){
 }
 
 
-void expandVars(char* word, char* newWord){
-    //char *newWord = (char *)calloc(1, 40000);
+bool expandVars(char* word, char* newWord){
+
     char* curr = &word[0];
     char* start = NULL;
     char* end = NULL;
@@ -83,6 +81,7 @@ void expandVars(char* word, char* newWord){
     int length = 0;
     bool varMatch = false;
     bool betweenBraces = false;
+
     while (*curr != '\0')
     {
         if (*curr == '$') 
@@ -113,6 +112,8 @@ void expandVars(char* word, char* newWord){
             varMatch = false;
             pos = strlen(newWord);
             betweenBraces = false;
+
+            free(varName);
         }
         else if (*curr != '{')
         {
@@ -125,6 +126,13 @@ void expandVars(char* word, char* newWord){
 
         curr++;
     }
+    
+    if (strchr(word, '$') == NULL)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool regexMatch(int returnValue){
@@ -149,7 +157,7 @@ void expandTilde(char* word, char* newWord)
 
     char* start = NULL;
     char* end = NULL;
-    char* substr = NULL;
+    //char* substr = NULL;
 
     char* pwDir = (char *)calloc(1, 4000);
 
@@ -169,18 +177,19 @@ void expandTilde(char* word, char* newWord)
     {
         start = &word[1];
         end = &word[length];
-        substr = (char *)calloc(1, end - start + 2);
-        memcpy(substr, start, end - start + 1);
+        char* substr1 = (char *)calloc(1, end - start + 2);
+        memcpy(substr1, start, end - start + 1);
 
-        //printf("  %s  ", substr);
-        if (getpwnam(substr) == NULL)
+        if (getpwnam(substr1) == NULL)
         {
             printf("Error: no such file or directory ");
         }
         else 
         {
-            strcpy(pwDir, getpwnam(substr)->pw_dir);
+            strcpy(pwDir, getpwnam(substr1)->pw_dir);
         }
+
+        free(substr1);
 
     }
 
@@ -189,21 +198,50 @@ void expandTilde(char* word, char* newWord)
     start = &word[length+1];
     end = &word[totLength];
 
-    substr = (char *)calloc(1, end - start + 2);
-    memcpy(substr, start, end - start + 1);
+    char* substr2 = (char *)calloc(1, end - start + 2);
+    memcpy(substr2, start, end - start + 1);
 
-    strcat(newWord, substr);
+    strcat(newWord, substr2);
+
+    free(substr2);
+    free(pwDir);
 
 }
 
 
 
-void expandWildcards(char* word, char* newWord) 
+bool expandWildcards(char* word, char* newWord) 
 {
+    if (strcmp(word, "*") == 0)
+    {
+        strcpy(newWord, "");
+        return true;
+    } 
+    if (strcmp(word, "*.") == 0)
+    {
+        strcpy(newWord, ".");
+        return true;
+    } 
+    if (strcmp(word, ".*") == 0)
+    {
+        strcpy(newWord, ".");
+        return true;
+    } 
+    if (strcmp(word, "..*") == 0)
+    {
+        strcpy(newWord, "..");
+        return true;
+    } 
+    if (strcmp(word, "*..") == 0)
+    {
+        strcpy(newWord, "..");
+        return true;
+    }
+
     if(strchr(word, '*') == NULL && strchr(word, '?') == NULL)
     {
         strcpy(newWord, word);
-        return;
+        return false;
     }
     else 
     {
@@ -211,19 +249,19 @@ void expandWildcards(char* word, char* newWord)
         char *regexStr = (char *)calloc(1, 4000);
         char* curr = &word[0];
         int pos = 0;
-
+        
 
         regexStr[0] = '^';
         while (*curr != '\0')
         {
             if (*curr == '*') 
             {
-                regexStr = strcat(regexStr, "[.:~A-Za-z0-9!\/_-]*"); //RESTRICT
+                strcat(regexStr, "[.:~A-Za-z0-9!\/_-]*"); //RESTRICT
                 pos = strlen(regexStr);
             }
             else if (*curr == '?')
             {
-                regexStr = strcat(regexStr, "[.:~A-Za-z0-9!\/_-]"); //RESTRICT
+                strcat(regexStr, "[.:~A-Za-z0-9!\/_-]"); //RESTRICT
                 pos = strlen(regexStr);
             }
             else
@@ -235,13 +273,15 @@ void expandWildcards(char* word, char* newWord)
             curr++;
         }
 
-        regexStr = strcat(regexStr, "$");
+        strcat(regexStr, "$");
 
-        printf("--  %s  -- ", regexStr);
+        //printf("--  %s  -- ", regexStr);
         
         //// COMPILING REGEX //////
         regex_t regex;
         int returnValue = regcomp(&regex,regexStr,0);
+
+        free(regexStr);
 
         ///////////////////////////
         int numFiles = 0;
@@ -254,11 +294,22 @@ void expandWildcards(char* word, char* newWord)
         DIR *d;
         struct dirent *dir;
         d = opendir(".");
+
         if (d) {
             while ((dir = readdir(d)) != NULL) {
+
+                
+                char * temp = strstr(dir->d_name, "..");
+            
+                /*if(temp != NULL)
+                {
+                    break;
+                }*/
+
                 returnValue = regexec(&regex, dir->d_name, 0, NULL, 0);
                 if (regexMatch(returnValue)) 
                 {
+                    //printf("file: %s", dir->d_name);
                     strcpy(filesTable[fileIndex], dir->d_name);
                     fileIndex++;
 
@@ -267,19 +318,36 @@ void expandWildcards(char* word, char* newWord)
                         maxLength = strlen(dir->d_name);
                     }
                 }
+
             }
         closedir(d);
         }
 
+
         // Sorting 
         qsort(filesTable, fileIndex, maxLength+1, strcmp);
 
+        if (fileIndex == 0)
+        {
+            strcpy(newWord, "");
+            char WORD_COPY[100];
+            strcpy(WORD_COPY, word);
+            char * currToken = strtok(WORD_COPY, "*?");
+
+            while(currToken != NULL)
+            {
+                strcat(newWord,currToken);
+                currToken = strtok(NULL,"*?");
+            }
+
+            //newWord = strcat(newWord, " ");
+        }
         
         for (int i = 0; i < fileIndex; i++)
         {
-            printf("%s ", filesTable[i]);
-            newWord = strcat(newWord, " ");
+            //printf("%s ", filesTable[i]);
             newWord = strcat(newWord, filesTable[i]);
+            newWord = strcat(newWord, " ");
         }
 
         // Cleaning the table
@@ -287,6 +355,9 @@ void expandWildcards(char* word, char* newWord)
         {
             strcpy(filesTable[i], "");
         }
+
+        return true;
+
     }
 }
 
@@ -306,8 +377,19 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
                                     wordCounter++;
 
 
-                                    char *newWord = (char *)calloc(1, 40000);
-                                    expandVars(yytext, newWord);
+                                    char *middleWord = (char *)calloc(1, 40000);
+                                    bool varFound = expandVars(yytext, middleWord);
+
+                                    //WILDCARD
+                                    char *newWord = (char *)calloc(1, 4000);
+                                    bool wildcardFound = expandWildcards(middleWord, newWord);
+                                    //strcpy(middleWord, newWord);
+
+                                    if (wildcardFound)
+                                    {
+                                        reparsing = true;
+                                    }
+
 
                                     if(ifAlias(newWord) && (wordCounter == 1)) {
 
@@ -318,9 +400,28 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
                                         for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
                                             unput( yycopy[i] );
                                         free( yycopy );
+
                                     } else {
                                         //printf("yytext: %s\n", yytext);
                                         yylval.string = strdup(newWord);
+
+                                        
+                                        if (!varFound && !wildcardFound)
+                                        {
+                                            strcat(currLine, "\"");
+                                        }
+                                        
+                                        strcat(currLine, yylval.string);
+
+                                        if (!varFound && !wildcardFound)
+                                        {
+                                            strcat(currLine, "\"");
+                                        }
+                                        strcat(currLine, " ");
+
+                                        free(middleWord);
+                                        free(newWord);
+
                                         return STRING;
                                     };
                                 }
@@ -330,19 +431,19 @@ ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_
 
 
 [ ]		            { }
-bye                 { wordCounter++;  return BYE; }
-setenv              { wordCounter++; return SETENV;}
-printenv            { wordCounter++; return PRINTENV;}
-unsetenv            { wordCounter++; return UNSETENV;}
-unalias             { wordCounter++; return UNALIAS;}
-cd		            { wordCounter++; return CD;}
-alias		        { wordCounter++; return ALIAS; }
-"\|"                {wordCounter++; return PIPE;}
-2"\>"               {wordCounter++;  return STDERR;}
-"\<"                 {wordCounter++; return IOIN;}
-"\>"                {wordCounter++; return IOUT;}
-"\n"		        { wordCounter = 0; return END; }
-&                   {wordCounter++; return BACKGRND;}
+bye                 { wordCounter++;  strcat(currLine, "bye"); strcat(currLine, " "); return BYE; }
+setenv              { wordCounter++; strcat(currLine, "setenv"); strcat(currLine, " "); return SETENV;}
+printenv            { wordCounter++; strcat(currLine, "printenv"); strcat(currLine, " "); return PRINTENV;}
+unsetenv            { wordCounter++; strcat(currLine, "unsetenv"); strcat(currLine, " "); return UNSETENV;}
+unalias             { wordCounter++; strcat(currLine, "unalias"); strcat(currLine, " "); return UNALIAS;}
+cd		            { wordCounter++; strcat(currLine, "cd"); strcat(currLine, " "); return CD;}
+alias		        { wordCounter++; strcat(currLine, "alias"); strcat(currLine, " ");return ALIAS; }
+"\|"                {wordCounter++; strcat(currLine, "|"); strcat(currLine, " ");return PIPE;}
+2"\>"               {wordCounter++;  strcat(currLine, "2>"); strcat(currLine, " ");return STDERR;}
+"\<"                 {wordCounter++; strcat(currLine, "<"); strcat(currLine, " "); return IOIN;}
+"\>"                {wordCounter++; strcat(currLine, ">"); strcat(currLine, " ");return IOUT;}
+"\n"		        { newLineReached = true; wordCounter = 0; strcat(currLine, "\n"); strcat(currLine, " "); return END; }
+&                   {wordCounter++; strcat(currLine, "&"); strcat(currLine, " ");return BACKGRND;}
 [\"]                 { BEGIN(string_condition); }
 
 
@@ -365,19 +466,31 @@ alias		        { wordCounter++; return ALIAS; }
                         }
 
                         char *middleWord = (char *)calloc(1, 4000);
-                        expandVars(newWordTilde, middleWord);
+                        bool varFound = expandVars(newWordTilde, middleWord);
                         //expandVars(yytext, middleWord);
+
 
                         //WILDCARD
                         char *newWord = (char *)calloc(1, 4000);
-                        expandWildcards(middleWord, newWord);
+                        bool wildcardFound = expandWildcards(middleWord, newWord);
+                        strcpy(middleWord, newWord);
 
+
+                        if (wildcardFound)
+                        {
+
+                            reparsing = true;
+
+                        }
 
                         if(ifAlias(newWord) && (wordCounter ==1)) {
+
 
                         //printf("yytext: %s\n", yytext);
                         //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(newWord) );
+
+                           //printf("This is the expanded alias: %s ----", yycopy);
                            for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
                                unput( yycopy[i] );
                            free( yycopy );
@@ -386,11 +499,18 @@ alias		        { wordCounter++; return ALIAS; }
 
 
                     } else {
-                        //WILDCARD
-
 
                         //printf("yytext: %s\n", yytext);
                         yylval.string = strdup(newWord);
+
+                        //printf("Command: %s", yylval.string);
+                        strcat(currLine, yylval.string);
+                        strcat(currLine, " ");
+
+                        free(newWord);
+                        free(newWordTilde);
+                        free(middleWord);
+
                         return STRING;
                     };
                      }

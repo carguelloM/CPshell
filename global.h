@@ -3,8 +3,8 @@
 #include <pwd.h>
 #include <sys/types.h>
 
-#define MAX_FILES 400
-#define MAX_FILE_NAME 100
+#define MAX_FILES 40
+#define MAX_FILE_NAME 10000000
 
 struct evTable {
    char var[128][100];
@@ -43,6 +43,8 @@ int aliasIndex, varIndex, cmdTableIndex;
 
 char filesTable[MAX_FILES][MAX_FILE_NAME]; 
 
+
+
 //State Variables
 char searchPath[100];
 int wordCounter;
@@ -56,4 +58,7 @@ int pipeLead[2];
 int pipeSec[2];
 bool backgroundProc;
 char* subAliases(char* name);
-
+char currLine[1000];
+bool reparsing;
+bool newLineReached;
+char reparseFiledir[100];

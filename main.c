@@ -328,6 +328,8 @@ int shellInit(void)
     pipePresent = false;
     IOPresent =  false;
     backgroundProc = false;
+    reparsing = false;
+    newLineReached = false;
 
     getcwd(cwd, sizeof(cwd));
 
@@ -344,6 +346,9 @@ int shellInit(void)
     strcpy(varTable.word[varIndex], ".:/bin");
     varIndex++;
 
+    strcpy(reparseFiledir, varTable.word[1]);
+    strcat(reparseFiledir, "/reparser.txt");
+
     return 1;
 }
 
@@ -355,6 +360,9 @@ int shellRefresh(void)
     pipePresent = false;
     IOPresent =  false;
     backgroundProc = false;
+    reparsing = false;
+    strcpy(currLine,"");
+    newLineReached = false;
 
     return 1;
 }
@@ -408,17 +416,44 @@ void printPrompt(void)
 }
 
 int main()
-{   int init = shellInit();
+{ 
+    int init = shellInit();
     int refresh;
+    FILE * reparser_buf;
 
     system("clear");
     while(1)
     {
-
+        
         refresh = shellRefresh();
         printPrompt();
        
+
         yyparse();
+        
+
+        if (reparsing)
+        {   
+            while(!newLineReached)
+            {
+                yyparse();
+            } 
+            reparser_buf = fopen(reparseFiledir, "w");
+            fprintf(reparser_buf, "%s", currLine);
+            fclose(reparser_buf);
+            refresh = shellRefresh();
+            
+            reparser_buf = fopen(reparseFiledir,"r");
+            yyrestart(reparser_buf);
+            yyparse();
+            fclose(reparser_buf);
+
+            if(!termianlErr)
+            {
+                yyrestart(stdin);
+            }
+            remove(reparseFiledir);   
+        }
        
         if(termianlErr)
         {
@@ -426,6 +461,7 @@ int main()
             yyrestart(stdin);
             continue;
         }
+        
        
         if(backgroundProc)
         {
