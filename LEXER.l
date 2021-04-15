@@ -285,7 +285,7 @@ bool expandWildcards(char* word, char* newWord)
 
         ///////////////////////////
         int numFiles = 0;
-        int maxLength = 0;
+        //int maxLength = 0;
 
 
         // Copying to the table
@@ -298,14 +298,6 @@ bool expandWildcards(char* word, char* newWord)
         if (d) {
             while ((dir = readdir(d)) != NULL) {
 
-                
-                char * temp = strstr(dir->d_name, "..");
-            
-                /*if(temp != NULL)
-                {
-                    break;
-                }*/
-
                 returnValue = regexec(&regex, dir->d_name, 0, NULL, 0);
                 if (regexMatch(returnValue)) 
                 {
@@ -313,10 +305,10 @@ bool expandWildcards(char* word, char* newWord)
                     strcpy(filesTable[fileIndex], dir->d_name);
                     fileIndex++;
 
-                    if (strlen(dir->d_name) > maxLength)
-                    {
-                        maxLength = strlen(dir->d_name);
-                    }
+                    //if (strlen(dir->d_name) > maxLength)
+                    //{
+                    //    maxLength = strlen(dir->d_name);
+                    //}
                 }
 
             }
@@ -325,7 +317,7 @@ bool expandWildcards(char* word, char* newWord)
 
 
         // Sorting 
-        qsort(filesTable, fileIndex, maxLength+1, strcmp);
+        qsort(filesTable, fileIndex, sizeof(*filesTable), strcmp);
 
         if (fileIndex == 0)
         {

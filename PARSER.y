@@ -118,7 +118,7 @@ pipes:
 	| pipes PIPE nonBuilt							{numPipes++;}
 ;
 back:
-													
+													{}											
 	| BACKGRND										{backgroundProc = true;}
 	
 %%

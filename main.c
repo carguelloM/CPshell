@@ -439,7 +439,6 @@ int main()
                 yyparse();
             } 
             reparser_buf = fopen(reparseFiledir, "w");
-            printf("THE LINE = %s", currLine);
             fprintf(reparser_buf, "%s", currLine);
             fclose(reparser_buf);
             refresh = shellRefresh();
