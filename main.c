@@ -336,8 +336,12 @@ int shellInit(void)
     strcpy(varTable.var[varIndex], "PWD");
     strcpy(varTable.word[varIndex], cwd);
     varIndex++;
+
+    struct passwd *pw = getpwuid(getuid());
+    const char *homedir = pw->pw_dir;
+
     strcpy(varTable.var[varIndex], "HOME");
-    strcpy(varTable.word[varIndex], cwd);
+    strcpy(varTable.word[varIndex], homedir);
     varIndex++;
     strcpy(varTable.var[varIndex], "PROMPT");
     strcpy(varTable.word[varIndex], "nutshell-CP");
