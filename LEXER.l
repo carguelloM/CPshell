@@ -360,7 +360,7 @@ bool expandWildcards(char* word, char* newWord)
 %x variable_expansion
 
 CHAR            [.:~A-Za-z0-9!\/_/*/?-][.:~A-Za-z0-9!\/_/*/?-]*
-ANYCHAR            [)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_=~ -]*
+ANYCHAR            [)(*&%$#@!+`;,\.a-zA-Z0-9'/*_=~ -][)(*&%$#@!+`;,\.a-zA-Z0-9'/*_=~ -]*
 
 
 %%
