@@ -1,4 +1,4 @@
-# Nutshell - Unix Shell 
+# CP(Cesar&Piotr) - Unix Shell 
 #### Cesar Arguello and Piotr Suder
 
 The features implemented for this shell include: 
