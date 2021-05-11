@@ -423,7 +423,6 @@ int main()
 { 
     int init = shellInit();
     int refresh;
-    FILE * reparser_buf;
 
     system("clear");
     while(1)
@@ -432,32 +431,7 @@ int main()
         refresh = shellRefresh();
         printPrompt();
        
-
         yyparse();
-        
-
-        if (reparsing)
-        {   
-            while(!newLineReached)
-            {
-                yyparse();
-            } 
-            reparser_buf = fopen(reparseFiledir, "w");
-            fprintf(reparser_buf, "%s", currLine);
-            fclose(reparser_buf);
-            refresh = shellRefresh();
-            
-            reparser_buf = fopen(reparseFiledir,"r");
-            yyrestart(reparser_buf);
-            yyparse();
-            fclose(reparser_buf);
-
-            if(!termianlErr)
-            {
-                yyrestart(stdin);
-            }
-            remove(reparseFiledir);   
-        }
        
         if(termianlErr)
         {
@@ -465,7 +439,6 @@ int main()
             yyrestart(stdin);
             continue;
         }
-        
        
         if(backgroundProc)
         {
@@ -473,14 +446,11 @@ int main()
             
             if(child > 0)
             { //PARENT SHELL
-                //printf("I AM THE PARENT AND ARE READY TO GO BACK\n");
-               // continue;
                usleep(5000);
             }
             else // CHILD SHOULD CARRY ON WITH THE TASK
             {
             int line = proccessLine();
-            //printf("I AM THE CHILD DOING THE BACKGROUND STUFF \n");
             exit(1); 
             }    
             

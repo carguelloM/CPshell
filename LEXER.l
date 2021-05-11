@@ -382,42 +382,49 @@ ANYCHAR            [)(*&%$#@!+`;,\.a-zA-Z0-9'\\/*_=~ -][)(*&%$#@!+`;,\.a-zA-Z0-9
 
                                     if (wildcardFound)
                                     {
-                                        reparsing = true;
-                                    }
-
-
-                                    if(ifAlias(newWord) && (wordCounter == 1)) {
-
-
-                                        //printf("yytext: %s\n", yytext);
-                                        //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
-                                        char *yycopy = strdup( subAliases(newWord) );
-                                        for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
+                                        //reparsing = true;
+                                        char *yycopy = strdup(newWord);
+                                        for ( int i = strlen(newWord) - 1; i >= 0; --i )
                                             unput( yycopy[i] );
                                         free( yycopy );
+                                    }
 
-                                    } else {
-                                        //printf("yytext: %s\n", yytext);
-                                        yylval.string = strdup(newWord);
+                                    else {
 
-                                        
-                                        if (!varFound && !wildcardFound)
-                                        {
-                                            strcat(currLine, "\"");
+
+                                        if(ifAlias(newWord) && (wordCounter == 1)) {
+
+
+                                            //printf("yytext: %s\n", yytext);
+                                            //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
+                                            char *yycopy = strdup( subAliases(newWord) );
+                                            for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
+                                                unput( yycopy[i] );
+                                            free( yycopy );
+
+                                        } else {
+                                            //printf("yytext: %s\n", yytext);
+                                            yylval.string = strdup(newWord);
+
+                                            
+                                            if (!varFound && !wildcardFound)
+                                            {
+                                                strcat(currLine, "\"");
+                                            }
+                                            
+                                            strcat(currLine, yylval.string);
+
+                                            if (!varFound && !wildcardFound)
+                                            {
+                                                strcat(currLine, "\"");
+                                            }
+                                            strcat(currLine, " ");
+
+                                            free(middleWord);
+                                            free(newWord);
+
+                                            return STRING;
                                         }
-                                        
-                                        strcat(currLine, yylval.string);
-
-                                        if (!varFound && !wildcardFound)
-                                        {
-                                            strcat(currLine, "\"");
-                                        }
-                                        strcat(currLine, " ");
-
-                                        free(middleWord);
-                                        free(newWord);
-
-                                        return STRING;
                                     };
                                 }
 <string_condition>[\"]          {BEGIN(INITIAL);}
@@ -474,41 +481,48 @@ alias		        { wordCounter++; strcat(currLine, "alias"); strcat(currLine, " ")
                         if (wildcardFound)
                         {
 
-                            reparsing = true;
+                            //reparsing = true;
+                            char *yycopy = strdup(newWord);
+                            for ( int i = strlen(newWord) - 1; i >= 0; --i )
+                                unput( yycopy[i] );
+                            free( yycopy );
 
                         }
+                        else 
+                        {
 
-                        if(ifAlias(newWord) && (wordCounter ==1)) {
-
-
-                        //printf("yytext: %s\n", yytext);
-                        //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
-                           char *yycopy = strdup( subAliases(newWord) );
-
-                           //printf("This is the expanded alias: %s ----", yycopy);
-                           for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
-                               unput( yycopy[i] );
-                           free( yycopy );
-
-                        
+                            if(ifAlias(newWord) && (wordCounter ==1)) {
 
 
-                    } else {
+                            //printf("yytext: %s\n", yytext);
+                            //source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
+                            char *yycopy = strdup( subAliases(newWord) );
 
-                        //printf("yytext: %s\n", yytext);
-                        yylval.string = strdup(newWord);
+                            //printf("This is the expanded alias: %s ----", yycopy);
+                            for ( int i = strlen(subAliases(newWord)) - 1; i >= 0; --i )
+                                unput( yycopy[i] );
+                            free( yycopy );
 
-                        //printf("Command: %s", yylval.string);
-                        strcat(currLine, yylval.string);
-                        strcat(currLine, " ");
+                            
 
-                        free(newWord);
-                        free(newWordTilde);
-                        free(middleWord);
 
-                        return STRING;
+                        } else {
+
+                            //printf("yytext: %s\n", yytext);
+                            yylval.string = strdup(newWord);
+
+                            //printf("Command: %s", yylval.string);
+                            strcat(currLine, yylval.string);
+                            strcat(currLine, " ");
+
+                            free(newWord);
+                            free(newWordTilde);
+                            free(middleWord);
+
+                            return STRING;
+                        }
                     };
-                     }
+                    }
 
 
                     
