@@ -5,10 +5,10 @@
 #include <regex.h> 
 #include <pwd.h>
 
-#include "Expansions/Lexing/Wildcards/wildcards.h"
-#include "Expansions/Lexing/Aliases/aliases.h"
-#include "Expansions/Lexing/Variables/variables.h"
-#include "Expansions/Lexing/Tilde/tilde.h"
+#include "Lexing/Wildcards/wildcards.h"
+#include "Lexing/Aliases/aliases.h"
+#include "Lexing/Variables/variables.h"
+//#include "Lexing/Tilde/tilde.h"
 
 
 %}

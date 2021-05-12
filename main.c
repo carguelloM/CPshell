@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
- #include <fcntl.h>
+#include <fcntl.h>
 
 char *getcwd(char *buf, size_t size);
 int yyparse();
